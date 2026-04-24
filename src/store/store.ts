@@ -1,5 +1,6 @@
+import { Application } from '@/types/application.type';
+import { Job, Role } from '@/types/job.type';
 import { useSyncExternalStore } from 'react';
-import type { Application, Job, Role } from '@/types/shift.type';
 
 const SEED_JOBS: Job[] = [
   {
@@ -18,7 +19,7 @@ const SEED_JOBS: Job[] = [
     ],
     payRate: 25000,
     payType: 'hourly',
-    shifts: ['morning', 'afternoon'],
+    shifts: ['pagi', 'siang'],
     duration: '3 bulan',
     createdAt: '2025-04-20T08:00:00Z',
   },
@@ -54,7 +55,7 @@ const SEED_JOBS: Job[] = [
     ],
     payRate: 30000,
     payType: 'hourly',
-    shifts: ['morning', 'afternoon', 'evening'],
+    shifts: ['pagi', 'siang', 'malam'],
     duration: '2 bulan',
     createdAt: '2025-04-23T09:00:00Z',
   },
@@ -70,7 +71,7 @@ const SEED_JOBS: Job[] = [
     requirements: ['Min. SMA', 'Penampilan rapi', 'Suka fashion'],
     payRate: 22000,
     payType: 'hourly',
-    shifts: ['afternoon', 'evening', 'weekend'],
+    shifts: ['siang', 'malam', 'weekend'],
     duration: '3 bulan',
     createdAt: '2025-04-21T11:00:00Z',
   },
@@ -86,7 +87,7 @@ const SEED_JOBS: Job[] = [
     requirements: ['Mahir Excel', 'Teliti', 'Bisa MS Office'],
     payRate: 150000,
     payType: 'daily',
-    shifts: ['morning'],
+    shifts: ['pagi'],
     duration: '2 minggu',
     createdAt: '2025-04-19T07:00:00Z',
   },
@@ -101,7 +102,7 @@ const SEED_JOBS: Job[] = [
     requirements: ['Jujur', 'Tahan begadang', 'Domisili dekat'],
     payRate: 28000,
     payType: 'hourly',
-    shifts: ['evening'],
+    shifts: ['malam'],
     duration: '1 bulan',
     createdAt: '2025-04-23T15:00:00Z',
   },

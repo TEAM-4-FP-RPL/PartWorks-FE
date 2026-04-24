@@ -1,62 +1,16 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { JobCard } from '@/features/jobs/components/JobCard';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useStore } from '@/store/store';
-import { CATEGORIES, JobCategory } from '@/types/job.type';
-import { Shift } from '@/types/shift.type';
 import JobsSidebar from '@/features/jobs/components/JobsSidebar';
+import { useJobsFilter } from '@/features/jobs/hooks/useJobsFilter';
 
 export default function JobsPage() {
   const { jobs } = useStore();
-  const searchParams = useSearchParams();
-
-  const initialSearch = searchParams.get('q') ?? '';
-  const initialCategory = searchParams.get('category') ?? '';
-  const initialShift = searchParams.get('shift') ?? '';
-
-  const [search, setSearch] = useState(initialSearch);
-  const [category, setCategory] = useState<Set<JobCategory>>(
-    new Set(
-      initialCategory && CATEGORIES.includes(initialCategory as JobCategory)
-        ? [initialCategory as JobCategory]
-        : []
-    )
-  );
-  const [shifts, setShifts] = useState<Set<Shift>>(
-    new Set(initialShift ? [initialShift as Shift] : [])
-  );
-  const [pay, setPay] = useState<number>(0);
-
-  const toggle = <T,>(set: Set<T>, val: T, setter: (s: Set<T>) => void) => {
-    const next = new Set(set);
-    if (next.has(val)) next.delete(val);
-    else next.add(val);
-    setter(next);
-  };
-
-  const filtered = useMemo(() => {
-    return jobs.filter((j) => {
-      if (search && !`${j.title}`.toLowerCase().includes(search.toLowerCase()))
-        return false;
-      if (category.size && !category.has(j.category)) return false;
-      if (shifts.size && !j.shifts.some((s: Shift) => shifts.has(s)))
-        return false;
-      if (pay && j.payRate < pay) return false;
-      return true;
-    });
-  }, [jobs, search, category, shifts, pay]);
-
-  const reset = () => {
-    setSearch('');
-    setCategory(new Set());
-    setShifts(new Set());
-    setPay(0);
-  };
+  const filter = useJobsFilter(jobs);
 
   return (
     <div className="min-h-screen bg-background">
@@ -65,28 +19,28 @@ export default function JobsPage() {
         <div className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight">Semua Lowongan</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {filtered.length} lowongan ditemukan
+            {filter.filtered.length} lowongan ditemukan
           </p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
           {/* Sidebar */}
           <JobsSidebar
-            search={search}
-            setSearch={setSearch}
-            category={category}
-            setCategory={setCategory}
-            shifts={shifts}
-            setShifts={setShifts}
-            pay={pay}
-            setPay={setPay}
-            reset={reset}
-            toggle={toggle}
+            search={filter.search}
+            setSearch={filter.setSearch}
+            category={filter.category}
+            setCategory={filter.setCategory}
+            shifts={filter.shifts}
+            setShifts={filter.setShifts}
+            pay={filter.pay}
+            setPay={filter.setPay}
+            reset={filter.reset}
+            toggle={filter.toggle}
           />
 
           {/* Results */}
           <div>
-            {filtered.length === 0 ? (
+            {filter.filtered.length === 0 ? (
               <div className="rounded-xl border border-dashed border-border p-12 text-center">
                 <p className="text-sm text-muted-foreground">
                   Tidak ada lowongan yang cocok dengan filter Anda.
@@ -97,7 +51,7 @@ export default function JobsPage() {
               </div>
             ) : (
               <div className="grid gap-5 sm:grid-cols-2">
-                {filtered.map((job) => (
+                {filter.filtered.map((job) => (
                   <JobCard key={job.id} job={job} />
                 ))}
               </div>
