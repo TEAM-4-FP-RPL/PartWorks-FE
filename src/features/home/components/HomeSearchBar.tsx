@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CATEGORIES, JobCategory } from '@/types/job.type';
-import { Shift, SHIFTS } from '@/types/shift.type.';
+import { Shift, SHIFTS } from '@/types/shift.type';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 

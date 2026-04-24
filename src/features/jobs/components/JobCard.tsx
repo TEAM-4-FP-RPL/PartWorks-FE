@@ -1,15 +1,15 @@
 import { MapPin, Clock, Banknote } from 'lucide-react';
-import type { Job } from '@/types/shift.type.';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Job } from '@/types/job.type';
+import { formatPay } from '@/features/jobs/utils/formatPay';
 
-function formatPay(job: Job) {
-  const formatted = new Intl.NumberFormat('id-ID').format(job.payRate);
-  return `Rp ${formatted}/${job.payType === 'hourly' ? 'jam' : 'hari'}`;
+interface JobCardProps {
+  job: Job;
 }
 
-export function JobCard({ job }: { job: Job }) {
+export function JobCard({ job }: JobCardProps) {
   return (
     <div className="group relative flex flex-col rounded-xl border border-border bg-card p-5 shadow-(--shadow-card) transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-(--shadow-elevated)">
       <div className="flex items-start justify-between gap-3">
@@ -18,12 +18,7 @@ export function JobCard({ job }: { job: Job }) {
             {job.company}
           </p>
           <h3 className="mt-1 text-base font-semibold text-foreground">
-            <Link
-              href={`/jobs/${job.id}`}
-              className="after:absolute after:inset-0"
-            >
-              {job.title}
-            </Link>
+            <Link href={`/jobs/${job.id}`}>{job.title}</Link>
           </h3>
         </div>
         <Badge variant="secondary" className="bg-accent text-accent-foreground">
@@ -47,8 +42,8 @@ export function JobCard({ job }: { job: Job }) {
       </div>
 
       <div className="mt-4 pt-4 border-t border-border">
-        <Button size="sm" className="w-full relative z-10" asChild>
-          <Link href={`/jobs/${job.id}`}>Quick Apply</Link>
+        <Button size="sm" className="w-full relative rounded-md" asChild>
+          <Link href={`/jobs/${job.id}/apply`}>Quick Apply</Link>
         </Button>
       </div>
     </div>

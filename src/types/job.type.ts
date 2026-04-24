@@ -1,4 +1,4 @@
-import { Shift } from '@/types/shift.type.';
+import { Shift } from '@/types/shift.type';
 
 export type JobCategory =
   | 'all'

@@ -3,13 +3,13 @@
 import { useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
-import { JobCard } from '@/components/JobCard';
+import { JobCard } from '@/features/jobs/components/JobCard';
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/store/store';
 import Link from 'next/link';
 import HomeSearchBar from '@/features/home/components/HomeSearchBar';
 import { JobCategory } from '@/types/job.type';
-import { Shift } from '@/types/shift.type.';
+import { Shift } from '@/types/shift.type';
 
 export default function HomePage() {
   const { jobs } = useStore();

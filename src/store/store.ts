@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { Application, Job, Role } from '@/types/shift.type.';
+import type { Application, Job, Role } from '@/types/shift.type';
 
 const SEED_JOBS: Job[] = [
   {
