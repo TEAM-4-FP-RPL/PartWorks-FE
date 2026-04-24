@@ -1,5 +1,5 @@
 import { MapPin, Clock, Banknote } from 'lucide-react';
-import type { Job } from '@/types/types';
+import type { Job } from '@/types/shift.type.';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -11,7 +11,7 @@ function formatPay(job: Job) {
 
 export function JobCard({ job }: { job: Job }) {
   return (
-    <div className="group flex flex-col rounded-xl border border-border bg-card p-5 shadow-(--shadow-card) transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-(--shadow-elevated)">
+    <div className="group relative flex flex-col rounded-xl border border-border bg-card p-5 shadow-(--shadow-card) transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-(--shadow-elevated)">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

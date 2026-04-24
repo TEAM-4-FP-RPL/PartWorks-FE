@@ -12,13 +12,8 @@ import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useStore } from '@/store/store';
-import {
-  CATEGORIES,
-  SHIFTS,
-  type JobCategory,
-  type Shift,
-} from '@/types/types';
-import { Job } from '@/types/types';
+import { CATEGORIES, JobCategory } from '@/types/job.type';
+import { Shift, SHIFTS } from '@/types/shift.type.';
 
 export default function JobsPage() {
   const { jobs } = useStore();
@@ -120,7 +115,7 @@ export default function JobsPage() {
             <div>
               <h3 className="mb-3 text-sm font-semibold">Shift</h3>
               <div className="space-y-2">
-                {SHIFTS.map((s: Shift) => (
+                {SHIFTS.map((s) => (
                   <div key={s.value} className="flex items-center gap-2">
                     <Checkbox
                       id={`shift-${s.value}`}
@@ -174,7 +169,7 @@ export default function JobsPage() {
               </div>
             ) : (
               <div className="grid gap-5 sm:grid-cols-2">
-                {filtered.map((job: Job) => (
+                {filtered.map((job) => (
                   <JobCard key={job.id} job={job} />
                 ))}
               </div>
