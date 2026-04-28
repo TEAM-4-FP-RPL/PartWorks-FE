@@ -1,29 +1,39 @@
 import { useState } from 'react';
 
 export function useHandleAvailabilityCalendar() {
-  const [fromDay, setFromDay] = useState<number | null>(null);
-  const [toDay, setToDay] = useState<number | null>(null);
-  const [shift, setShift] = useState<string | null>(null);
+  const [selectedDays, setSelectedDays] = useState<number[]>([]);
+  const [startHour, setStartHour] = useState<number | null>(null);
+  const [endHour, setEndHour] = useState<number | null>(null);
 
-  const handleFrom = (val: string) => {
-    const next = Number(val);
-    setFromDay(next);
-    if (toDay !== null && toDay < next) setToDay(null);
+  const toggleDay = (id: number) => {
+    setSelectedDays((prev) =>
+      prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]
+    );
   };
 
-  const handleTo = (val: string) => {
-    setToDay(Number(val));
+  const handleStartHour = (value: string) => {
+    const next = Number(value);
+    setStartHour(next);
+    if (endHour !== null && endHour <= next) setEndHour(null);
   };
 
-  const handleShift = (val: string) => {
-    setShift(val);
+  const handleEndHour = (value: string) => {
+    setEndHour(Number(value));
   };
 
   const reset = () => {
-    setFromDay(null);
-    setToDay(null);
-    setShift(null);
+    setSelectedDays([]);
+    setStartHour(null);
+    setEndHour(null);
   };
 
-  return { fromDay, toDay, shift, handleFrom, handleTo, handleShift, reset };
+  return {
+    selectedDays,
+    startHour,
+    endHour,
+    toggleDay,
+    handleStartHour,
+    handleEndHour,
+    reset,
+  };
 }
