@@ -1,17 +1,7 @@
 import { Badge } from '@/components/ui/badge';
+import { DAYS } from '@/features/profile/constants/availability.constants';
+import { formatHour } from '@/features/profile/utils/formatHour';
 import { cn } from '@/lib/utils';
-
-const DAYS = [
-  { id: 0, label: 'Senin', short: 'Sen' },
-  { id: 1, label: 'Selasa', short: 'Sel' },
-  { id: 2, label: 'Rabu', short: 'Rab' },
-  { id: 3, label: 'Kamis', short: 'Kam' },
-  { id: 4, label: 'Jumat', short: 'Jum' },
-  { id: 5, label: 'Sabtu', short: 'Sab' },
-  { id: 6, label: 'Minggu', short: 'Min' },
-];
-
-const formatHour = (hour: number) => `${String(hour).padStart(2, '0')}.00`;
 
 interface AvailabilitySummaryProps {
   selectedDays: number[];

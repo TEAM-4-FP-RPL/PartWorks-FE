@@ -11,20 +11,11 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { useHandleAvailabilityCalendar } from '@/features/profile/hooks/useHandleAvailabilityCalendar';
 import AvailabilitySummary from '@/features/profile/components/AvailabilitySummary';
-
-const DAYS = [
-  { id: 0, label: 'Senin', short: 'Sen' },
-  { id: 1, label: 'Selasa', short: 'Sel' },
-  { id: 2, label: 'Rabu', short: 'Rab' },
-  { id: 3, label: 'Kamis', short: 'Kam' },
-  { id: 4, label: 'Jumat', short: 'Jum' },
-  { id: 5, label: 'Sabtu', short: 'Sab' },
-  { id: 6, label: 'Minggu', short: 'Min' },
-];
-
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
-
-const formatHour = (hour: number) => `${String(hour).padStart(2, '0')}.00`;
+import { formatHour } from '@/features/profile/utils/formatHour';
+import {
+  DAYS,
+  HOURS,
+} from '@/features/profile/constants/availability.constants';
 
 export default function AvailabilityCalendarForm() {
   const {
