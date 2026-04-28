@@ -1,9 +1,11 @@
 'use client';
-import AvailabilityCalendar from '@/features/profile/components/AvailabilityCalendarForm';
-import React, { useState } from 'react';
+
+import { useState } from 'react';
 import { User, PenLine, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { useHandleAvailabilityCalendar } from '@/features/profile/hooks/useHandleAvailabilityCalendar';
+import AvailabilitySummary from '@/features/profile/components/AvailabilitySummary';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -15,13 +17,14 @@ export default function ProfilePage() {
     avatar: '',
   });
 
+  const { selectedDays, startHour, endHour } = useHandleAvailabilityCalendar();
+
   const handleEdit = () => {
     router.push('/profile/edit');
   };
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-muted/30 py-10 px-4 sm:px-6">
-      {/* <AvailabilityCalendar /> */}
       <div className="max-w-4xl mx-auto mt-8">
         <div className="shadow-xl rounded-2xl mb-10 bg-card border">
           {/* Cover Photo / Banner */}
@@ -101,6 +104,18 @@ export default function ProfilePage() {
                       Belum ada skill yang ditambahkan.
                     </p>
                   )}
+                </div>
+
+                <div className="mt-10">
+                  <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4 border-b pb-2">
+                    Ketersediaan Kerja
+                  </h3>
+
+                  <AvailabilitySummary
+                    selectedDays={selectedDays}
+                    startHour={startHour}
+                    endHour={endHour}
+                  />
                 </div>
               </div>
             </div>

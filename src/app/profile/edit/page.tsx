@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import AvailabilityCalendarForm from '@/features/profile/components/AvailabilityCalendarForm';
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -143,7 +144,7 @@ export default function EditProfilePage() {
               </div>
             </div>
 
-            <div className="grid gap-6">
+            <div className="grid gap-8">
               <div className="space-y-2.5">
                 <Label
                   htmlFor="name"
@@ -238,6 +239,8 @@ export default function EditProfilePage() {
                   )}
                 </div>
               </div>
+
+              <AvailabilityCalendarForm />
             </div>
 
             <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-8 border-t">
