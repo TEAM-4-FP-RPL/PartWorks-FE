@@ -8,6 +8,7 @@ import {
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { QueryProvider } from '@/components/QueryProvider';
+import AuthInitializer from '@/components/AuthInitializer';
 
 const playfairDisplayHeading = Playfair_Display({
   subsets: ['latin'],
@@ -50,6 +51,7 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
+        <AuthInitializer />
         <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
