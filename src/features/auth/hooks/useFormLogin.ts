@@ -1,0 +1,33 @@
+import { useForm } from 'react-hook-form';
+import { loginSchema, LoginFormValues } from '../schemas';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useLoginUser } from './useLoginUser';
+import { useRouter } from 'next/navigation';
+
+export function useFormLogin() {
+  const { mutate } = useLoginUser();
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = (data: LoginFormValues) => {
+    mutate(data, {
+      onSuccess: () => {
+        console.log('Login success');
+        router.push('/');
+      },
+    });
+  };
+
+  return { register, handleSubmit, errors, onSubmit };
+}
