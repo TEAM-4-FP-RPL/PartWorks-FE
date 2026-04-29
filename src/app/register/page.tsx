@@ -1,44 +1,22 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Briefcase, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useRegisterUser } from '@/features/auth/hooks/useRegisterUser';
-import { registerSchema, RegisterFormValues } from '@/features/auth/schemas';
-import { useForm, useWatch } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useFormRegister } from '@/features/auth/hooks/useFormRegister';
 
 export default function RegisterPage() {
-  const { mutate } = useRegisterUser();
-  const router = useRouter();
-
   const {
+    role,
     register,
     handleSubmit,
     control,
     setValue,
     formState: { errors },
-  } = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      role: 'worker',
-      email: '',
-      password: '',
-    },
-  });
-
-  const role = useWatch({ control, name: 'role' });
-
-  const onSubmit = (data: RegisterFormValues) => {
-    mutate(data, {
-      onSuccess: () => {
-        router.push('/profile');
-      },
-    });
-  };
+    onSubmit,
+  } = useFormRegister();
 
   return (
     <div className="min-h-screen bg-background">
