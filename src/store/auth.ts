@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { User, UserRole } from '@/types/auth.type';
-import { getRoleFromToken, isTokenExpired } from '@/lib/auth';
+import { isTokenExpired } from '@/lib/auth';
 
 interface AuthStore {
   token: string | null;
@@ -43,16 +43,17 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   setToken: (token: string) => {
     localStorage.setItem('token', token);
     setTokenCookie(token);
-    const role = getRoleFromToken(token);
-    set({ token, role, isAuthenticated: true });
+    set({ token, isAuthenticated: true });
   },
 
   setUser: (user: User) => {
+    localStorage.setItem('user', JSON.stringify(user));
     set({ user, role: user.role });
   },
 
   clearToken: () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     clearTokenCookie();
     set({
       token: null,
@@ -72,12 +73,22 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   initToken: () => {
     const savedToken = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+
     if (savedToken && !isTokenExpired(savedToken)) {
-      const role = getRoleFromToken(savedToken);
       setTokenCookie(savedToken);
-      set({ token: savedToken, role, isAuthenticated: true, isLoading: false });
+      const user: User | null = savedUser ? JSON.parse(savedUser) : null;
+
+      set({
+        token: savedToken,
+        user,
+        role: user?.role,
+        isAuthenticated: true,
+        isLoading: false,
+      });
     } else {
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       clearTokenCookie();
       set({
         token: null,
@@ -90,13 +101,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   hasRole: (requiredRole: UserRole | UserRole[]): boolean => {
     const { role } = get();
+
     const roles = Array.isArray(requiredRole)
-      ? requiredRole.map((r) => r.toUpperCase())
-      : [requiredRole.toUpperCase()];
+      ? requiredRole.map((r) => r.toLowerCase())
+      : [requiredRole.toLowerCase()];
 
-    console.log(roles);
-
-    return roles.includes(role as UserRole);
+    return roles.includes(role.toLowerCase());
   },
 
   isEmployer: (): boolean => {
@@ -104,6 +114,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   isWorker: (): boolean => {
-    return get().role === UserRole.WORKER;
+    return get().role.toLowerCase() === UserRole.WORKER;
   },
 }));

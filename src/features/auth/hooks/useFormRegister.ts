@@ -3,6 +3,7 @@ import { useRegisterUser } from './useRegisterUser';
 import { useRouter } from 'next/navigation';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useAuthStore } from '@/store/auth';
 
 export function useFormRegister() {
   const { mutate } = useRegisterUser();
@@ -27,7 +28,10 @@ export function useFormRegister() {
 
   const onSubmit = (data: RegisterFormValues) => {
     mutate(data, {
-      onSuccess: () => {
+      onSuccess: (res) => {
+        if (res?.token) {
+          useAuthStore.getState().setToken(res.token);
+        }
         router.push('/profile');
       },
     });

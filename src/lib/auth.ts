@@ -13,23 +13,10 @@ export const decodeToken = (token: string): DecodedToken | null => {
   }
 };
 
-export const getRoleFromToken = (token: string): UserRole | string => {
-  const decoded = decodeToken(token);
-  return decoded?.role || '';
-};
-
 export const isTokenExpired = (token: string): boolean => {
   const decoded = decodeToken(token);
   if (!decoded) return true;
 
   const expiry = decoded.exp * 1000;
   return Date.now() >= expiry;
-};
-
-export const hasRole = (
-  userRole: string | UserRole,
-  requiredRole: UserRole | UserRole[]
-): boolean => {
-  const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-  return roles.includes(userRole as UserRole);
 };
