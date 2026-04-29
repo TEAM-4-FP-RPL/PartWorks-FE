@@ -1,25 +1,43 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Briefcase, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { actions } from '@/store/store';
+import { useRegisterUser } from '@/features/auth/hooks/useRegisterUser';
+import { registerSchema, RegisterFormValues } from '@/features/auth/schemas';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export default function RegisterPage() {
+  const { mutate } = useRegisterUser();
   const router = useRouter();
-  const [role, setRole] = useState<'job_seeker' | 'employer'>('job_seeker');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [pw, setPw] = useState('');
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    actions.login(role, name || email.split('@')[0]);
-    router.push(role === 'employer' ? '/employer' : '/profile');
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      role: 'worker',
+      email: '',
+      password: '',
+    },
+  });
+
+  const role = useWatch({ control, name: 'role' });
+
+  const onSubmit = (data: RegisterFormValues) => {
+    mutate(data, {
+      onSuccess: () => {
+        router.push('/profile');
+      },
+    });
   };
 
   return (
@@ -27,13 +45,10 @@ export default function RegisterPage() {
       <div className="mx-auto flex max-w-md flex-col px-4 py-16">
         <div className="rounded-xl border border-border bg-card p-8 shadow-[var(--shadow-card)]">
           <h1 className="text-2xl font-bold">Daftar PartIn</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Mulai gratis dalam 30 detik
-          </p>
           <div className="mt-6 grid grid-cols-2 gap-2">
             {(
               [
-                { v: 'job_seeker', label: 'Saya pencari kerja', icon: Search },
+                { v: 'worker', label: 'Saya pencari kerja', icon: Search },
                 { v: 'employer', label: 'Saya employer', icon: Briefcase },
               ] as const
             ).map((opt) => {
@@ -43,7 +58,7 @@ export default function RegisterPage() {
                 <button
                   key={opt.v}
                   type="button"
-                  onClick={() => setRole(opt.v)}
+                  onClick={() => setValue('role', opt.v)}
                   className={`flex flex-col items-start gap-2 rounded-lg border p-4 text-left transition-all ${
                     active
                       ? 'border-primary bg-primary-soft'
@@ -58,37 +73,34 @@ export default function RegisterPage() {
               );
             })}
           </div>
-          <form onSubmit={submit} className="mt-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nama</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Nama lengkap"
-              />
-            </div>
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                {...register('email')}
                 placeholder="kamu@email.com"
               />
+              {errors.email && (
+                <p className="text-sm text-destructive">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="pw">Password</Label>
               <Input
                 id="pw"
                 type="password"
-                required
-                value={pw}
-                onChange={(e) => setPw(e.target.value)}
+                {...register('password')}
                 placeholder="••••••••"
               />
+              {errors.password && (
+                <p className="text-sm text-destructive">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
             <Button type="submit" className="w-full" size="lg">
               Buat akun

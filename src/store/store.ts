@@ -146,7 +146,7 @@ interface State {
   appliedJobIds: Set<string>;
 }
 
-let state: State = {
+const state: State = {
   role: 'guest',
   userName: '',
   jobs: SEED_JOBS,
@@ -162,61 +162,6 @@ const subscribe = (cb: () => void) => {
 const emit = () => listeners.forEach((l) => l());
 const getSnapshot = () => state;
 
-function setState(updater: (s: State) => State) {
-  state = updater(state);
-  emit();
-}
-
 export function useStore() {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
-
-export const actions = {
-  login(role: Exclude<Role, 'guest'>, name: string) {
-    setState((s) => ({
-      ...s,
-      role,
-      userName: name || (role === 'employer' ? 'Employer' : 'Pencari Kerja'),
-    }));
-  },
-  logout() {
-    setState((s) => ({ ...s, role: 'guest', userName: '' }));
-  },
-  addJob(job: Job) {
-    setState((s) => ({ ...s, jobs: [job, ...s.jobs] }));
-  },
-  apply(
-    jobId: string,
-    seekerName: string,
-    skills: string[],
-    availability: string
-  ) {
-    setState((s) => {
-      if (s.appliedJobIds.has(jobId)) return s;
-      const newApp: Application = {
-        id: `a${Date.now()}`,
-        jobId,
-        seekerName,
-        seekerSkills: skills,
-        seekerAvailability: availability,
-        status: 'sent',
-        appliedAt: new Date().toISOString(),
-      };
-      const next = new Set(s.appliedJobIds);
-      next.add(jobId);
-      return {
-        ...s,
-        applications: [newApp, ...s.applications],
-        appliedJobIds: next,
-      };
-    });
-  },
-  updateAppStatus(appId: string, status: Application['status']) {
-    setState((s) => ({
-      ...s,
-      applications: s.applications.map((a) =>
-        a.id === appId ? { ...a, status } : a
-      ),
-    }));
-  },
-};
