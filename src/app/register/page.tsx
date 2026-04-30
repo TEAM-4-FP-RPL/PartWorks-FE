@@ -22,7 +22,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-background">
       <div className="mx-auto flex max-w-md flex-col px-4 py-16">
         <div className="rounded-xl border border-border bg-card p-8 shadow-[var(--shadow-card)]">
-          <h1 className="text-2xl font-bold">Daftar PartIn</h1>
+          <h1 className="text-2xl font-bold">Daftar PartWorks</h1>
           <div className="mt-6 grid grid-cols-2 gap-2">
             {(
               [
@@ -59,6 +59,7 @@ export default function RegisterPage() {
                 type="email"
                 {...register('email')}
                 placeholder="kamu@email.com"
+                className="px-2"
               />
               {errors.email && (
                 <p className="text-sm text-destructive">
@@ -73,6 +74,7 @@ export default function RegisterPage() {
                 type="password"
                 {...register('password')}
                 placeholder="••••••••"
+                className="px-2"
               />
               {errors.password && (
                 <p className="text-sm text-destructive">

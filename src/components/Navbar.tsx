@@ -1,14 +1,15 @@
-import { useStore } from '@/store/store';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Briefcase } from 'lucide-react';
+import { useAuthStore } from '@/store/auth';
 
 export function Navbar() {
-  const { role, userName } = useStore();
+  const { role, user, clearToken } = useAuthStore();
   const navigate = useRouter();
 
   const handleLogout = () => {
+    clearToken();
     navigate.push('/login');
   };
 
@@ -29,7 +30,7 @@ export function Navbar() {
           >
             Lowongan
           </Link>
-          {role === 'job_seeker' && (
+          {role === 'worker' && (
             <Link
               href="/profile"
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -48,26 +49,28 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
-          {role === 'guest' ? (
+          {!user ? (
             <>
-              <Button variant="ghost" size="sm" className="rounded-md">
+              <Button variant="ghost" size="sm" className="rounded-md" asChild>
                 <Link href="/login">Masuk</Link>
               </Button>
-              <Button size="sm" className="rounded-md">
-                <Link href="/register">Daftar</Link>
+              <Button size="sm" className="rounded-md" asChild>
+                <Link href="/register">Mendaftar</Link>
               </Button>
             </>
           ) : (
             <>
               <span className="hidden text-sm text-muted-foreground sm:inline">
                 Halo,{' '}
-                <span className="font-medium text-foreground">{userName}</span>
+                <span className="font-medium text-foreground">
+                  {user?.display_name || user?.username}
+                </span>
               </span>
               <Button
-                variant="ghost"
+                variant="destructive"
                 size="sm"
                 onClick={handleLogout}
-                className="rounded-md"
+                className="rounded-md bg-red-500 text-white hover:bg-red-600 hover:text-white font-seminbold"
               >
                 Keluar
               </Button>

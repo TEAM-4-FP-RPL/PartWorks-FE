@@ -159,7 +159,6 @@ const subscribe = (cb: () => void) => {
   listeners.add(cb);
   return () => listeners.delete(cb);
 };
-const emit = () => listeners.forEach((l) => l());
 const getSnapshot = () => state;
 
 export function useStore() {
