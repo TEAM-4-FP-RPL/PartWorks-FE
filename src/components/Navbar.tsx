@@ -1,4 +1,4 @@
-import { actions, useStore } from '@/store/store';
+import { useStore } from '@/store/store';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -9,7 +9,6 @@ export function Navbar() {
   const navigate = useRouter();
 
   const handleLogout = () => {
-    actions.logout();
     navigate.push('/login');
   };
 

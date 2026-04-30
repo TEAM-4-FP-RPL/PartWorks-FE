@@ -11,11 +11,14 @@ import Link from 'next/link';
 import HomeSearchBar from '@/features/home/components/HomeSearchBar';
 import { JobCategory } from '@/types/job.type';
 import { Shift } from '@/types/shift.type';
+import { RoleGuard } from '@/components/RoleGuard';
+import { UserRole } from '@/types/auth.type';
+import { useAuthStore } from '@/store/auth';
 
 export default function HomePage() {
   const router = useRouter();
   const { jobs } = useStore();
-  
+  const { hasRole } = useAuthStore();
   const [search, setSearch] = useState<string>('');
   const [category, setCategory] = useState<JobCategory>('all');
   const [shift, setShift] = useState<Shift>('all');
@@ -55,24 +58,50 @@ export default function HomePage() {
           />
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Button
-              size="lg"
-              variant="secondary"
-              asChild
-              className="rounded-md"
-            >
-              <Link href="/register">Daftar sebagai pencari kerja</Link>
-            </Button>
-            
-            {}
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white rounded-md font-medium"
-              onClick={() => router.push('/register')}
-            >
-              Posting lowongan
-            </Button>
+            {!hasRole([UserRole.EMPLOYER, UserRole.WORKER]) ? (
+              <>
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  asChild
+                  className="rounded-md"
+                >
+                  <Link href="/register">Daftar sebagai pencari kerja</Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  asChild
+                  className="rounded-md"
+                >
+                  <Link href="/register">Posting lowongan (Register)</Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <RoleGuard allowedRoles={UserRole.WORKER}>
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    asChild
+                    className="rounded-md"
+                  >
+                    <Link href="/jobs">Jelajahi Lowongan</Link>
+                  </Button>
+                </RoleGuard>
+
+                <RoleGuard allowedRoles={UserRole.EMPLOYER}>
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    asChild
+                    className="rounded-md"
+                  >
+                    <Link href="/employer">Dashboard Employer</Link>
+                  </Button>
+                </RoleGuard>
+              </>
+            )}
           </div>
         </div>
       </section>

@@ -7,6 +7,8 @@ import {
 } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
+import { QueryProvider } from '@/components/QueryProvider';
+import AuthInitializer from '@/components/AuthInitializer';
 
 const playfairDisplayHeading = Playfair_Display({
   subsets: ['latin'],
@@ -41,17 +43,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <body
-        className={cn(
+      <body className={cn(
           'min-h-full flex flex-col antialiased',
           notoSans.variable, 
           playfairDisplayHeading.variable,
           geistSans.variable,
           geistMono.variable,
           'font-sans' 
-        )}
-      >
-        {children}
+        )}>
+        <AuthInitializer />
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
