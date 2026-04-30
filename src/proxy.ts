@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 const protectedRoutes = {
   '/profile': ['worker'],
-  // '/employer': ['employer'],
+  '/employer': ['employer'],
 };
 
 export function proxy(request: NextRequest) {
