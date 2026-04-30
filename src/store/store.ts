@@ -219,4 +219,16 @@ export const actions = {
       ),
     }));
   },
+  updateJob(updatedJob: Job) {
+    setState((s) => ({
+      ...s,
+      jobs: s.jobs.map((j) => (j.id === updatedJob.id ? updatedJob : j)),
+    }));
+  },
+  deleteJob(id: string) {
+    setState((s) => ({
+      ...s,
+      jobs: s.jobs.filter((j) => j.id !== id),
+    }));
+  },
 };
