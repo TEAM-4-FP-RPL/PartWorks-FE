@@ -9,7 +9,7 @@ import AvailabilityCalendarForm from '@/features/profile/components/Availability
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Dummy data, similar to the main profile page
   const [editForm, setEditForm] = useState({
@@ -26,12 +26,13 @@ export default function EditProfilePage() {
   };
 
   const handleSave = () => {
-    if (!editForm.name.trim()) {
-      setError('Nama tidak boleh kosong.');
-      return;
-    }
-    if (!editForm.bio.trim()) {
-      setError('Deskripsi singkat tidak boleh kosong.');
+    const newErrors: Record<string, string> = {};
+    if (!editForm.name.trim()) newErrors.name = 'Nama tidak boleh kosong.';
+    if (!editForm.bio.trim())
+      newErrors.bio = 'Deskripsi singkat tidak boleh kosong.';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
@@ -45,12 +46,15 @@ export default function EditProfilePage() {
     if (!newSkill) return;
 
     if (editForm.skills.length >= 5) {
-      setError('Maksimal hanya 5 skill yang diperbolehkan.');
+      setErrors({
+        ...errors,
+        skills: 'Maksimal hanya 5 skill yang diperbolehkan.',
+      });
       return;
     }
 
     if (editForm.skills.includes(newSkill)) {
-      setError('Skill sudah ada.');
+      setErrors({ ...errors, skills: 'Skill sudah ada.' });
       return;
     }
 
@@ -59,7 +63,9 @@ export default function EditProfilePage() {
       skills: [...prev.skills, newSkill],
     }));
     setSkillInput('');
-    setError('');
+    const newErrors = { ...errors };
+    delete newErrors.skills;
+    setErrors(newErrors);
   };
 
   const handleRemoveSkill = (skillToRemove: string) => {
@@ -87,10 +93,13 @@ export default function EditProfilePage() {
             </h1>
           </div>
 
-          {error && (
+          {Object.keys(errors).length > 0 && (
             <div className="mb-6 p-4 text-sm text-destructive bg-destructive/10 rounded-lg flex items-center gap-2 border border-destructive/20 shadow-sm">
               <AlertCircle className="w-5 h-5 shrink-0" />
-              <span className="font-medium">{error}</span>
+              <span className="font-medium">
+                Terdapat kesalahan pada form. Silakan periksa kembali field yang
+                di-highlight.
+              </span>
             </div>
           )}
 
@@ -155,12 +164,18 @@ export default function EditProfilePage() {
                 <Input
                   id="name"
                   value={editForm.name}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, name: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setEditForm({ ...editForm, name: e.target.value });
+                    if (errors.name) setErrors({ ...errors, name: '' });
+                  }}
                   placeholder="Masukkan nama Anda"
-                  className="h-12 shadow-sm focus-visible:ring-blue-500"
+                  className={`h-12 shadow-sm ${errors.name ? 'border-destructive focus-visible:ring-destructive' : 'focus-visible:ring-blue-500'}`}
                 />
+                {errors.name && (
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.name}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2.5">
@@ -173,12 +188,18 @@ export default function EditProfilePage() {
                 <textarea
                   id="bio"
                   value={editForm.bio}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, bio: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setEditForm({ ...editForm, bio: e.target.value });
+                    if (errors.bio) setErrors({ ...errors, bio: '' });
+                  }}
                   placeholder="Ceritakan sedikit tentang keahlian/pengalaman Anda"
-                  className="flex w-full rounded-md border border-input bg-background px-4 py-3 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px] resize-y"
+                  className={`flex w-full rounded-md border bg-background px-4 py-3 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px] resize-y ${errors.bio ? 'border-destructive focus-visible:ring-destructive' : 'border-input focus-visible:ring-blue-500'}`}
                 />
+                {errors.bio && (
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.bio}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-3">
@@ -214,6 +235,11 @@ export default function EditProfilePage() {
                     </span>
                   </Button>
                 </div>
+                {errors.skills && (
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.skills}
+                  </p>
+                )}
 
                 <div className="flex flex-wrap gap-2.5 mt-4 min-h-[40px] items-center p-4 bg-muted/30 border rounded-lg shadow-inner">
                   {editForm.skills.map((skill, index) => (
