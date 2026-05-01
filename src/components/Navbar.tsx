@@ -25,6 +25,12 @@ export function Navbar() {
 
         <nav className="hidden items-center gap-6 md:flex md:justify-end">
           <Link
+            href="/"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Beranda
+          </Link>
+          <Link
             href="/jobs"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
@@ -32,7 +38,7 @@ export function Navbar() {
           </Link>
           {role === 'employer' && (
             <Link
-              href="/employer"
+              href="/employer/jobs"
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               Dashboard

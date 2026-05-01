@@ -36,12 +36,12 @@ export default function HomePage() {
             <Sparkles className="h-3.5 w-3.5" />
             Ratusan lowongan baru setiap minggu
           </div>
-          
+
           <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
             Cari kerja part-time yang
             <br /> cocok dengan jadwalmu
           </h1>
-          
+
           <p className="mx-auto mt-5 max-w-xl text-base text-white/80 md:text-lg">
             Dari barista weekend sampai data entry remote — temukan pekerjaan
             fleksibel yang sesuai jam kosongmu.
@@ -97,7 +97,7 @@ export default function HomePage() {
                     asChild
                     className="rounded-md"
                   >
-                    <Link href="/employer">Dashboard Employer</Link>
+                    <Link href="/employer/jobs">Dashboard Employer</Link>
                   </Button>
                 </RoleGuard>
               </>
@@ -121,7 +121,7 @@ export default function HomePage() {
             <Link href="/jobs">Lihat semua →</Link>
           </Button>
         </div>
-        
+
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((job) => (
             <JobCard key={job.id} job={job} />
