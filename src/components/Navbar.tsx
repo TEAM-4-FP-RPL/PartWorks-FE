@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, User } from 'lucide-react';
 import { useAuthStore } from '@/store/auth';
 
 export function Navbar() {
@@ -30,14 +30,6 @@ export function Navbar() {
           >
             Lowongan
           </Link>
-          {role === 'worker' && (
-            <Link
-              href="/profile"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Profil
-            </Link>
-          )}
           {role === 'employer' && (
             <Link
               href="/employer"
@@ -60,20 +52,13 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <span className="hidden text-sm text-muted-foreground sm:inline">
-                Halo,{' '}
-                <span className="font-medium text-foreground">
-                  {user?.display_name || user?.username}
-                </span>
-              </span>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleLogout}
-                className="rounded-md bg-red-500 text-white hover:bg-red-600 hover:text-white font-seminbold"
+              <Link
+                href="/profile"
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-muted border hover:opacity-80 transition-opacity"
+                title="Profil Anda"
               >
-                Keluar
-              </Button>
+                <User className="w-4 h-4 text-muted-foreground" />
+              </Link>
             </>
           )}
         </div>
