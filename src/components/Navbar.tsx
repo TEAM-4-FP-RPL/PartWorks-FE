@@ -1,14 +1,15 @@
-import { useStore } from '@/store/store';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, User } from 'lucide-react';
+import { useAuthStore } from '@/store/auth';
 
 export function Navbar() {
-  const { role, userName } = useStore();
+  const { role, user, clearToken } = useAuthStore();
   const navigate = useRouter();
 
   const handleLogout = () => {
+    clearToken();
     navigate.push('/login');
   };
 
@@ -29,14 +30,6 @@ export function Navbar() {
           >
             Lowongan
           </Link>
-          {role === 'job_seeker' && (
-            <Link
-              href="/profile"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Profil
-            </Link>
-          )}
           {role === 'employer' && (
             <Link
               href="/employer"
@@ -48,29 +41,24 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
-          {role === 'guest' ? (
+          {!user ? (
             <>
-              <Button variant="ghost" size="sm" className="rounded-md">
+              <Button variant="ghost" size="sm" className="rounded-md" asChild>
                 <Link href="/login">Masuk</Link>
               </Button>
-              <Button size="sm" className="rounded-md">
-                <Link href="/register">Daftar</Link>
+              <Button size="sm" className="rounded-md" asChild>
+                <Link href="/register">Mendaftar</Link>
               </Button>
             </>
           ) : (
             <>
-              <span className="hidden text-sm text-muted-foreground sm:inline">
-                Halo,{' '}
-                <span className="font-medium text-foreground">{userName}</span>
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="rounded-md"
+              <Link
+                href="/profile"
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-muted border hover:opacity-80 transition-opacity"
+                title="Profil Anda"
               >
-                Keluar
-              </Button>
+                <User className="w-4 h-4 text-muted-foreground" />
+              </Link>
             </>
           )}
         </div>

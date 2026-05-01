@@ -13,7 +13,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-background">
       <div className="mx-auto flex max-w-md flex-col px-4 py-16">
         <div className="rounded-xl border border-border bg-card p-8 shadow-[var(--shadow-card)]">
-          <h1 className="text-2xl font-bold">Masuk ke PartIn</h1>
+          <h1 className="text-2xl font-bold">Masuk ke PartWorks</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Lanjutkan pencarian kerja part-time-mu
           </p>
@@ -24,8 +24,9 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 required
-                {...register('email')}
                 placeholder="kamu@email.com"
+                className="px-2"
+                {...register('email')}
               />
               {errors.email && (
                 <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -37,8 +38,9 @@ export default function LoginPage() {
                 id="pw"
                 type="password"
                 required
-                {...register('password')}
                 placeholder="••••••••"
+                className="px-2"
+                {...register('password')}
               />
               {errors.password && (
                 <p className="text-sm text-red-500">
@@ -58,9 +60,6 @@ export default function LoginPage() {
             >
               Daftar
             </Link>
-          </p>
-          <p className="mt-3 text-center text-xs text-muted-foreground">
-            Demo: gunakan email diawali employer untuk masuk sebagai employer.
           </p>
         </div>
       </div>
