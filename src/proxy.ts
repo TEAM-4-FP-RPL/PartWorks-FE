@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const protectedRoutes = {
-  '/profile': ['worker'],
+  '/profile': ['worker', 'employer'],
   '/employer': ['employer'],
 };
 

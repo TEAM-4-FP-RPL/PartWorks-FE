@@ -164,3 +164,20 @@ const getSnapshot = () => state;
 export function useStore() {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
+
+export const actions = {
+  addJob: (job: Job) => {
+    state.jobs = [...state.jobs, job];
+    emit();
+  },
+  updateJob: (updatedJob: Job) => {
+    state.jobs = state.jobs.map((job) =>
+      job.id === updatedJob.id ? updatedJob : job
+    );
+    emit();
+  },
+  deleteJob: (id: string) => {
+    state.jobs = state.jobs.filter((job) => job.id !== id);
+    emit();
+  },
+};

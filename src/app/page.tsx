@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sparkles } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { JobCard } from '@/features/jobs/components/JobCard';
@@ -15,6 +16,7 @@ import { UserRole } from '@/types/auth.type';
 import { useAuthStore } from '@/store/auth';
 
 export default function HomePage() {
+  const router = useRouter();
   const { jobs } = useStore();
   const { hasRole } = useAuthStore();
   const [search, setSearch] = useState<string>('');
@@ -24,26 +26,28 @@ export default function HomePage() {
   const featured = jobs.slice(0, 6);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background font-sans">
       <Navbar />
 
-      {/* Hero */}
+      {}
       <section className="relative overflow-hidden bg-(image:--gradient-hero) text-primary-foreground">
         <div className="mx-auto max-w-5xl px-4 py-20 text-center md:py-28 md:px-6">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
             <Sparkles className="h-3.5 w-3.5" />
             Ratusan lowongan baru setiap minggu
           </div>
+          
           <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight md:text-6xl">
             Cari kerja part-time yang
             <br /> cocok dengan jadwalmu
           </h1>
+          
           <p className="mx-auto mt-5 max-w-xl text-base text-white/80 md:text-lg">
             Dari barista weekend sampai data entry remote — temukan pekerjaan
             fleksibel yang sesuai jam kosongmu.
           </p>
 
-          {/* Search bar */}
+          {}
           <HomeSearchBar
             search={search}
             setSearch={setSearch}
@@ -102,7 +106,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured */}
+      {}
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-6">
         <div className="mb-8 flex items-end justify-between">
           <div>
@@ -117,6 +121,7 @@ export default function HomePage() {
             <Link href="/jobs">Lihat semua →</Link>
           </Button>
         </div>
+        
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((job) => (
             <JobCard key={job.id} job={job} />
