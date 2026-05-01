@@ -40,7 +40,6 @@ export function useFormRegister() {
   return {
     register,
     handleSubmit,
-    control,
     setValue,
     formState: { errors },
     role,

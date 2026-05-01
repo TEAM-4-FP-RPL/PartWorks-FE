@@ -12,7 +12,6 @@ export default function RegisterPage() {
     role,
     register,
     handleSubmit,
-    control,
     setValue,
     formState: { errors },
     onSubmit,
