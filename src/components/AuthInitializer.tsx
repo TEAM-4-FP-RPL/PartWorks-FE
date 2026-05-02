@@ -3,12 +3,14 @@
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/auth';
 import { Spinner } from './ui/spinner';
+import { setupAxiosInterceptors } from '@/lib/axios';
 
 export default function AuthInitializer() {
-  const { initToken, role, isLoading } = useAuthStore();
+  const { initToken, isLoading } = useAuthStore();
 
   useEffect(() => {
     initToken();
+    setupAxiosInterceptors();
   }, []);
 
   if (isLoading) {

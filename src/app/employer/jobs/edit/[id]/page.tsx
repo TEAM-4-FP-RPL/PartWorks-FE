@@ -1,166 +1,91 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { JobForm } from '@/features/jobs/components/JobForm';
+import { useUpdateJob } from '@/features/jobs/hooks/useUpdateJob';
+import { useJob } from '@/features/jobs/hooks/useJob';
+import { JobFormValues } from '@/features/jobs/schemas';
 import { useRouter, useParams } from 'next/navigation';
-import { useStore, actions } from '@/store/store';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Briefcase } from 'lucide-react';
-import { JobCategory } from '@/types/job.type';
+import { Loader2 } from 'lucide-react';
 
 export default function EditJobPage() {
   const router = useRouter();
   const { id } = useParams();
-  const { jobs } = useStore();
 
-  const jobToEdit = jobs.find((j) => j.id === id);
-  const [form, setForm] = useState({
-    title: '',
-    category: '',
-    location: '',
-    payRate: '',
-    schedule: '',
-  });
+  const { data: job, isLoading, isError } = useJob(id as string);
+  const { mutate: updateJob, isPending } = useUpdateJob();
 
-  useEffect(() => {
-    if (jobToEdit) {
-      setForm({
-        title: jobToEdit.title || '',
-        category: jobToEdit.category || '',
-        location: jobToEdit.location || '',
-        payRate: jobToEdit.payRate?.toString() || '',
-        schedule: jobToEdit.shifts?.[0] || '',
-      });
-    }
-  }, [jobToEdit]);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
-  const handleUpdate = () => {
-    if (!jobToEdit) return;
+  if (isError || !job) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <p className="text-slate-500 font-medium">
+          Lowongan tidak ditemukan atau gagal dimuat.
+        </p>
+      </div>
+    );
+  }
 
-    actions.updateJob({
-      ...jobToEdit,
-      title: form.title,
-      category: form.category as JobCategory,
-      location: form.location,
-      payRate: Number(form.payRate),
-      shifts: [form.schedule as any],
-    });
-    router.push('/employer/jobs');
+  const mapType = (rawType: string): 'Onsite' | 'Remote' | 'Hybrid' => {
+    const t = rawType?.toLowerCase() || '';
+    if (t === 'onsite') return 'Onsite';
+    if (t === 'remote') return 'Remote';
+    if (t === 'hybrid') return 'Hybrid';
+    return 'Onsite';
+  };
+
+  const defaultValues: Partial<JobFormValues> = {
+    title: job.title,
+    description: job.description || '',
+    category_id: job.category?.id || 1,
+    location: job.location,
+    salary: job.salary || 0,
+    type: mapType(job.type),
+    schedules:
+      job.schedules?.length > 0
+        ? job.schedules.map(
+            (s: { day: string; start_time: string; end_time: string }) => ({
+              day: s.day || 'monday',
+              start_time: s.start_time || '',
+              end_time: s.end_time || '',
+            })
+          )
+        : [{ day: 'monday', start_time: '', end_time: '' }],
+  };
+
+  const handleSubmit = (data: JobFormValues) => {
+    updateJob(
+      {
+        id: id as string,
+        payload: {
+          ...data,
+          category_id: Number(data.category_id),
+          salary: Number(data.salary),
+        },
+      },
+      {
+        onSuccess: () => {
+          router.push('/employer/jobs');
+        },
+        onError: (err: Error) => {
+          alert('Gagal mengupdate lowongan: ' + err.message);
+        },
+      }
+    );
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 py-12 px-4 font-sans">
-      <div className="max-w-2xl mx-auto space-y-6">
-        
-        {}
-        <Button 
-          variant="ghost" 
-          onClick={() => router.back()} 
-          className="rounded-full gap-2 text-slate-500 hover:bg-slate-100"
-        >
-          <ArrowLeft className="w-4 h-4" /> KEMBALI KE DASHBOARD
-        </Button>
-
-        <div className="rounded-[2rem] border-2 border-slate-100 shadow-none overflow-hidden bg-white">
-          
-          {}
-          <div className="p-8 border-b border-slate-50 flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-2xl">
-              <Briefcase className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">EDIT LOWONGAN</h2>
-              <p className="text-slate-500 text-sm">Perbarui informasi pekerjaan untuk lowongan ini.</p>
-            </div>
-          </div>
-
-          {}
-          <div className="p-8 space-y-6">
-            <div className="space-y-4">
-              
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
-                  Judul Lowongan
-                </Label>
-                <Input 
-                  value={form.title} 
-                  onChange={(e) => setForm({ ...form, title: e.target.value })} 
-                  placeholder="Contoh: Barista Part-time" 
-                  className="h-12 rounded-xl border-slate-200" 
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
-                    Kategori
-                  </Label>
-                  <Input 
-                    value={form.category} 
-                    onChange={(e) => setForm({ ...form, category: e.target.value })} 
-                    placeholder="Contoh: F&B, Retail" 
-                    className="h-12 rounded-xl border-slate-200" 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
-                    Lokasi
-                  </Label>
-                  <Input 
-                    value={form.location} 
-                    onChange={(e) => setForm({ ...form, location: e.target.value })} 
-                    placeholder="Contoh: Jakarta Pusat" 
-                    className="h-12 rounded-xl border-slate-200" 
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
-                  Gaji / Upah
-                </Label>
-                <Input 
-                  value={form.payRate} 
-                  onChange={(e) => setForm({ ...form, payRate: e.target.value })} 
-                  placeholder="Contoh: 25000" 
-                  className="h-12 rounded-xl border-slate-200" 
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
-                  Jadwal Kerja
-                </Label>
-                <Input 
-                  value={form.schedule} 
-                  onChange={(e) => setForm({ ...form, schedule: e.target.value })} 
-                  placeholder="Contoh: Senin - Jumat (08:00 - 12:00)" 
-                  className="h-12 rounded-xl border-slate-200" 
-                />
-              </div>
-
-            </div>
-
-            {}
-            <div className="flex gap-4 pt-6">
-              <Button 
-                variant="outline" 
-                onClick={() => router.back()} 
-                className="flex-1 h-12 rounded-xl font-bold border-slate-200"
-              >
-                BATAL
-              </Button>
-              <Button 
-                className="flex-1 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold gap-2" 
-                onClick={handleUpdate}
-              >
-                <Save className="w-4 h-4" /> SIMPAN PERUBAHAN
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <JobForm
+      title="EDIT LOWONGAN"
+      defaultValues={defaultValues}
+      onSubmit={handleSubmit}
+      isPending={isPending}
+    />
   );
 }

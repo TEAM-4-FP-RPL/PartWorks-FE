@@ -1,4 +1,4 @@
-import { useCategories } from '../api/useCategories';
+import { useCategories } from '../hooks/useCategories';
 import {
   Select,
   SelectContent,
