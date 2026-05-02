@@ -1,9 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  getEmployerProfile,
-  updateEmployerProfile,
-  EmployerProfilePayload,
-} from '../api';
+import { getEmployerProfile, updateEmployerProfile } from '../api';
+import { EmployerProfilePayload } from '../types';
 
 export const useEmployerProfile = () => {
   return useQuery({
