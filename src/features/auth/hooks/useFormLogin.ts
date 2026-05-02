@@ -28,7 +28,6 @@ export function useFormLogin() {
           useAuthStore.getState().setToken(res.token);
           useAuthStore.getState().setUser(res);
         }
-        console.log('Login success');
         router.push('/');
       },
     });

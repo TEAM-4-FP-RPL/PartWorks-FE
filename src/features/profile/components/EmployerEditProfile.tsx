@@ -1,79 +1,78 @@
 'use client';
-import React, { useState } from 'react';
-import { Camera, X, Plus, Save, AlertCircle, ArrowLeft } from 'lucide-react';
+
+import { useEffect } from 'react';
+import { Camera, Save, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  useEmployerProfile,
+  useUpdateEmployerProfile,
+} from '@/features/profile/hooks/useEmployerProfile';
+import { EmployerFormValues, employerSchema } from '../schemas';
 
 export default function EmployerEditProfile() {
   const router = useRouter();
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Dummy data, similar to the main profile page
-  const [editForm, setEditForm] = useState({
-    name: 'Kopi Senja',
-    bio: 'Kedai kopi modern yang menyajikan kopi dengan biji pilihan lokal. Kami mencari talenta muda untuk berkembang bersama.',
-    skills: ['F&B', 'Hospitality', 'Retail'],
-    avatar: '',
+  const { data: profile, isLoading } = useEmployerProfile();
+  const updateProfile = useUpdateEmployerProfile();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<EmployerFormValues>({
+    resolver: zodResolver(employerSchema),
+    defaultValues: {
+      name: '',
+      bio: '',
+      avatar: '',
+    },
   });
 
-  const [skillInput, setSkillInput] = useState('');
+  const avatarUrl = watch('avatar');
+  const nameValue = watch('name');
+
+  useEffect(() => {
+    if (profile) {
+      reset({
+        name: profile.company_name || '',
+        bio: profile.description || '',
+        avatar: profile.logo_url || '',
+      });
+    }
+  }, [profile, reset]);
 
   const handleCancel = () => {
     router.back();
   };
 
-  const handleSave = () => {
-    const newErrors: Record<string, string> = {};
-    if (!editForm.name.trim())
-      newErrors.name = 'Nama Perusahaan tidak boleh kosong.';
-    if (!editForm.bio.trim())
-      newErrors.bio = 'Deskripsi Perusahaan tidak boleh kosong.';
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    // In a real app, this would save to a backend or global state
-    router.push('/profile');
-  };
-
-  const handleAddSkill = (e?: React.KeyboardEvent | React.MouseEvent) => {
-    if (e) e.preventDefault();
-    const newSkill = skillInput.trim();
-    if (!newSkill) return;
-
-    if (editForm.skills.length >= 5) {
-      setErrors({
-        ...errors,
-        skills: 'Maksimal hanya 5 industri yang diperbolehkan.',
+  const onSubmit = async (data: EmployerFormValues) => {
+    try {
+      await updateProfile.mutateAsync({
+        company_name: data.name,
+        description: data.bio,
       });
-      return;
+      router.push('/profile');
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      alert(errorMessage);
     }
-
-    if (editForm.skills.includes(newSkill)) {
-      setErrors({ ...errors, skills: 'Industri sudah ada.' });
-      return;
-    }
-
-    setEditForm((prev) => ({
-      ...prev,
-      skills: [...prev.skills, newSkill],
-    }));
-    setSkillInput('');
-    const newErrors = { ...errors };
-    delete newErrors.skills;
-    setErrors(newErrors);
   };
 
-  const handleRemoveSkill = (skillToRemove: string) => {
-    setEditForm((prev) => ({
-      ...prev,
-      skills: prev.skills.filter((s) => s !== skillToRemove),
-    }));
-  };
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-muted/30 py-10 px-4 sm:px-6">
@@ -108,19 +107,20 @@ export default function EmployerEditProfile() {
             <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
               <div className="relative group shrink-0">
                 <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-background flex items-center justify-center border-4 border-muted shadow-sm">
-                  {editForm.avatar ? (
+                  {avatarUrl ? (
                     <img
-                      src={editForm.avatar}
+                      src={avatarUrl}
                       alt="Avatar"
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="w-full h-full bg-blue-100 flex items-center justify-center text-blue-500 font-bold text-3xl">
-                      {editForm.name.charAt(0)}
+                      {nameValue ? nameValue.charAt(0) : '?'}
                     </div>
                   )}
                 </div>
                 <button
+                  type="button"
                   className="absolute bottom-0 right-0 p-2.5 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-700 transition-colors"
                   title="Ubah Foto"
                   onClick={() =>
@@ -162,17 +162,13 @@ export default function EmployerEditProfile() {
                 </Label>
                 <Input
                   id="name"
-                  value={editForm.name}
-                  onChange={(e) => {
-                    setEditForm({ ...editForm, name: e.target.value });
-                    if (errors.name) setErrors({ ...errors, name: '' });
-                  }}
                   placeholder="Masukkan nama perusahaan"
-                  className={`h-12 shadow-sm ${errors.name ? 'border-destructive focus-visible:ring-destructive' : 'focus-visible:ring-blue-500'}`}
+                  {...register('name')}
+                  className={`h-12 shadow-sm ${errors.name ? 'border-destructive focus-visible:ring-destructive' : 'focus-visible:ring-blue-500'} px-4 rounded-lg`}
                 />
                 {errors.name && (
                   <p className="text-sm text-destructive font-medium">
-                    {errors.name}
+                    {errors.name.message}
                   </p>
                 )}
               </div>
@@ -186,83 +182,15 @@ export default function EmployerEditProfile() {
                 </Label>
                 <textarea
                   id="bio"
-                  value={editForm.bio}
-                  onChange={(e) => {
-                    setEditForm({ ...editForm, bio: e.target.value });
-                    if (errors.bio) setErrors({ ...errors, bio: '' });
-                  }}
                   placeholder="Ceritakan tentang visi dan profil perusahaan Anda"
+                  {...register('bio')}
                   className={`flex w-full rounded-md border bg-background px-4 py-3 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px] resize-y ${errors.bio ? 'border-destructive focus-visible:ring-destructive' : 'border-input focus-visible:ring-blue-500'}`}
                 />
                 {errors.bio && (
                   <p className="text-sm text-destructive font-medium">
-                    {errors.bio}
+                    {errors.bio.message}
                   </p>
                 )}
-              </div>
-
-              <div className="space-y-3">
-                <Label className="text-sm font-semibold text-foreground/80">
-                  Industri / Bidang{' '}
-                  <span className="font-normal text-muted-foreground text-xs ml-1">
-                    (Maks 5)
-                  </span>
-                </Label>
-                <div className="flex gap-3">
-                  <Input
-                    value={skillInput}
-                    onChange={(e) => setSkillInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddSkill();
-                      }
-                    }}
-                    placeholder="Contoh: F&B, Retail, dll"
-                    disabled={editForm.skills.length >= 5}
-                    className="shadow-sm focus-visible:ring-blue-500 h-11"
-                  />
-                  <Button
-                    type="button"
-                    onClick={() => handleAddSkill()}
-                    disabled={editForm.skills.length >= 5 || !skillInput.trim()}
-                    className="px-6 gap-2 shrink-0 h-11 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span className="hidden sm:inline font-semibold">
-                      Tambah
-                    </span>
-                  </Button>
-                </div>
-                {errors.skills && (
-                  <p className="text-sm text-destructive font-medium">
-                    {errors.skills}
-                  </p>
-                )}
-
-                <div className="flex flex-wrap gap-2.5 mt-4 min-h-[40px] items-center p-4 bg-muted/30 border rounded-lg shadow-inner">
-                  {editForm.skills.map((skill, index) => (
-                    <div
-                      key={index}
-                      className="px-3 py-1.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200 flex items-center gap-2 text-sm font-semibold shadow-sm transition-all hover:shadow"
-                    >
-                      {skill}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveSkill(skill)}
-                        className="bg-blue-200 text-blue-900 rounded-full p-0.5 hover:bg-destructive hover:text-white transition-colors focus:outline-none"
-                        title="Hapus industri"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                  {editForm.skills.length === 0 && (
-                    <span className="text-sm text-muted-foreground/70 italic px-2">
-                      Belum ada industri (min. 1 disarankan)
-                    </span>
-                  )}
-                </div>
               </div>
             </div>
 
@@ -276,11 +204,17 @@ export default function EmployerEditProfile() {
                 Batal
               </Button>
               <Button
+                type="button"
                 size="lg"
-                onClick={handleSave}
+                onClick={handleSubmit(onSubmit)}
+                disabled={updateProfile.isPending}
                 className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm w-full sm:w-auto"
               >
-                <Save className="w-4 h-4" />
+                {updateProfile.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
                 Simpan Perubahan
               </Button>
             </div>
