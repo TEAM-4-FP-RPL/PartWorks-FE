@@ -1,17 +1,10 @@
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Briefcase, User } from 'lucide-react';
 import { useAuthStore } from '@/store/auth';
 
 export function Navbar() {
-  const { role, user, clearToken } = useAuthStore();
-  const navigate = useRouter();
-
-  const handleLogout = () => {
-    clearToken();
-    navigate.push('/login');
-  };
+  const { role, user } = useAuthStore();
 
   return (
     <nav className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur">

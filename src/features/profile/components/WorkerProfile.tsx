@@ -1,27 +1,68 @@
 'use client';
 
-import { useState } from 'react';
-import { User, PenLine, ArrowLeft } from 'lucide-react';
+import {
+  User,
+  PenLine,
+  ArrowLeft,
+  Loader2,
+  MoreVertical,
+  LogOut,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { useHandleAvailabilityCalendar } from '@/features/profile/hooks/useHandleAvailabilityCalendar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import AvailabilitySummary from '@/features/profile/components/AvailabilitySummary';
+import { useWorkerProfile } from '@/features/profile/hooks/useWorkerProfile';
+import { useWorkerAvailability } from '@/features/profile/hooks/useWorkerAvailability';
+import { parseBackendAvailability } from '@/features/profile/utils/availability';
+import { useAuthStore } from '@/store/auth';
 
 export default function WorkerProfile() {
   const router = useRouter();
+  const clearToken = useAuthStore((state) => state.clearToken);
 
-  const [profile, setProfile] = useState({
-    name: 'Himawan',
-    bio: 'Saya adalah seorang pekerja lepas yang antusias untuk membantu proyek Anda.',
-    skills: ['Mengetik', 'Microsoft Office', 'Desain Grafis'],
-    avatar: '',
-  });
-
-  const { selectedDays, startHour, endHour } = useHandleAvailabilityCalendar();
+  const { data: profile, isLoading: isProfileLoading } = useWorkerProfile();
+  const { data: availability, isLoading: isAvailabilityLoading } =
+    useWorkerAvailability();
 
   const handleEdit = () => {
     router.push('/profile/edit');
   };
+
+  const handleLogout = () => {
+    clearToken();
+    router.push('/');
+  };
+
+  if (isProfileLoading || isAvailabilityLoading) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
+        <p className="text-muted-foreground">Gagal memuat profil</p>
+      </div>
+    );
+  }
+
+  const { selectedDays, startHour, endHour } =
+    parseBackendAvailability(availability);
+  const skillsList = profile.skills
+    ? profile.skills
+        .split(',')
+        .map((s: string) => s.trim())
+        .filter(Boolean)
+    : [];
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-muted/30 py-10 px-4 sm:px-6">
@@ -37,6 +78,26 @@ export default function WorkerProfile() {
             >
               <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 p-2 sm:p-2.5 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full text-white transition-all shadow-sm"
+                  title="Opsi"
+                >
+                  <MoreVertical className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer font-medium"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Keluar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Main Content Card */}
@@ -45,9 +106,9 @@ export default function WorkerProfile() {
             <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-6 sm:gap-4 -mt-20 sm:-mt-28 mb-8">
               <div className="relative group shrink-0">
                 <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden bg-background flex items-center justify-center border-4 border-background shadow-lg">
-                  {profile.avatar ? (
+                  {profile.photo_url ? (
                     <img
-                      src={profile.avatar}
+                      src={profile.photo_url}
                       alt="Avatar"
                       className="w-full h-full object-cover"
                     />
@@ -70,7 +131,7 @@ export default function WorkerProfile() {
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="text-center sm:text-left space-y-1.5">
                   <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-                    {profile.name}
+                    {profile.full_name}
                   </h1>
                   <p className="text-muted-foreground/80 font-medium">WORKER</p>
                 </div>
@@ -79,8 +140,8 @@ export default function WorkerProfile() {
                   <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-3 border-b pb-2">
                     Tentang Saya
                   </h3>
-                  <p className="text-foreground leading-relaxed md:text-lg opacity-90">
-                    {profile.bio}
+                  <p className="text-foreground leading-relaxed md:text-lg opacity-90 whitespace-pre-wrap">
+                    {profile.bio || 'Belum ada deskripsi yang ditambahkan.'}
                   </p>
                 </div>
 
@@ -88,9 +149,9 @@ export default function WorkerProfile() {
                   <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4 border-b pb-2">
                     Keahlian
                   </h3>
-                  {profile.skills.length > 0 ? (
+                  {skillsList.length > 0 ? (
                     <div className="flex flex-wrap gap-2.5 justify-center sm:justify-start">
-                      {profile.skills.map((skill, index) => (
+                      {skillsList.map((skill: string, index: number) => (
                         <div
                           key={index}
                           className="px-4 py-1.5 rounded-full bg-blue-100/80 text-blue-800 border border-blue-200/50 shadow-sm text-sm font-semibold uppercase tracking-wide"

@@ -31,6 +31,7 @@ export function useFormRegister() {
       onSuccess: (res) => {
         if (res?.token) {
           useAuthStore.getState().setToken(res.token);
+          useAuthStore.getState().setUser(res);
         }
         router.push('/profile');
       },

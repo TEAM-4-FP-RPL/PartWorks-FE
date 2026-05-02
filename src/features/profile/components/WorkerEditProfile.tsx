@@ -1,78 +1,152 @@
 'use client';
-import React, { useState } from 'react';
-import { Camera, X, Plus, Save, AlertCircle, ArrowLeft } from 'lucide-react';
+
+import React, { useState, useEffect } from 'react';
+import {
+  Camera,
+  X,
+  Plus,
+  Save,
+  AlertCircle,
+  ArrowLeft,
+  Loader2,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AvailabilityCalendarForm from '@/features/profile/components/AvailabilityCalendarForm';
+import {
+  useWorkerProfile,
+  useUpdateWorkerProfile,
+} from '@/features/profile/hooks/useWorkerProfile';
+import {
+  useWorkerAvailability,
+  useUpdateWorkerAvailability,
+} from '@/features/profile/hooks/useWorkerAvailability';
+import { useHandleAvailabilityCalendar } from '@/features/profile/hooks/useHandleAvailabilityCalendar';
+import {
+  parseBackendAvailability,
+  formatToBackendAvailability,
+} from '@/features/profile/utils/availability';
+import { WorkerFormValues, workerSchema } from '../schemas';
 
 export default function WorkerEditProfile() {
   const router = useRouter();
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Dummy data, similar to the main profile page
-  const [editForm, setEditForm] = useState({
-    name: 'Himawan',
-    bio: 'Saya adalah seorang pekerja lepas yang antusias untuk membantu proyek Anda.',
-    skills: ['Mengetik', 'Microsoft Office', 'Desain Grafis'],
-    avatar: '',
+  const { data: profile, isLoading: isProfileLoading } = useWorkerProfile();
+  const { data: availability, isLoading: isAvailabilityLoading } =
+    useWorkerAvailability();
+
+  const updateProfile = useUpdateWorkerProfile();
+  const updateAvailability = useUpdateWorkerAvailability();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<WorkerFormValues>({
+    resolver: zodResolver(workerSchema),
+    defaultValues: {
+      name: '',
+      bio: '',
+      skills: [],
+      avatar: '',
+    },
   });
 
   const [skillInput, setSkillInput] = useState('');
+  const avatarUrl = watch('avatar');
+  const nameValue = watch('name');
+  const currentSkills = watch('skills') || [];
+
+  const initialAvailability = parseBackendAvailability(availability);
+
+  const calendarProps = useHandleAvailabilityCalendar({
+    initialDays: initialAvailability.selectedDays,
+    initialStartHour: initialAvailability.startHour,
+    initialEndHour: initialAvailability.endHour,
+  });
+
+  useEffect(() => {
+    if (profile) {
+      reset({
+        name: profile.full_name || '',
+        bio: profile.bio || '',
+        skills: profile.skills
+          ? profile.skills
+              .split(',')
+              .map((s: string) => s.trim())
+              .filter(Boolean)
+          : [],
+        avatar: profile.photo_url || '',
+      });
+    }
+  }, [profile, reset]);
 
   const handleCancel = () => {
     router.back();
   };
 
-  const handleSave = () => {
-    const newErrors: Record<string, string> = {};
-    if (!editForm.name.trim()) newErrors.name = 'Nama tidak boleh kosong.';
-    if (!editForm.bio.trim())
-      newErrors.bio = 'Deskripsi singkat tidak boleh kosong.';
+  const onSubmit = async (data: WorkerFormValues) => {
+    try {
+      await updateProfile.mutateAsync({
+        full_name: data.name,
+        bio: data.bio,
+        skills: data.skills.join(','),
+      });
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
+      const formattedAvailability = formatToBackendAvailability(
+        calendarProps.selectedDays,
+        calendarProps.startHour,
+        calendarProps.endHour
+      );
+
+      await updateAvailability.mutateAsync(formattedAvailability);
+
+      router.push('/profile');
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      alert(errorMessage);
     }
-
-    // In a real app, this would save to a backend or global state
-    router.push('/profile');
   };
+
+  if (isProfileLoading || isAvailabilityLoading) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   const handleAddSkill = (e?: React.KeyboardEvent | React.MouseEvent) => {
     if (e) e.preventDefault();
     const newSkill = skillInput.trim();
     if (!newSkill) return;
 
-    if (editForm.skills.length >= 5) {
-      setErrors({
-        ...errors,
-        skills: 'Maksimal hanya 5 skill yang diperbolehkan.',
-      });
+    if (currentSkills.length >= 5) {
       return;
     }
 
-    if (editForm.skills.includes(newSkill)) {
-      setErrors({ ...errors, skills: 'Skill sudah ada.' });
+    if (currentSkills.includes(newSkill)) {
       return;
     }
 
-    setEditForm((prev) => ({
-      ...prev,
-      skills: [...prev.skills, newSkill],
-    }));
+    setValue('skills', [...currentSkills, newSkill], { shouldValidate: true });
     setSkillInput('');
-    const newErrors = { ...errors };
-    delete newErrors.skills;
-    setErrors(newErrors);
   };
 
   const handleRemoveSkill = (skillToRemove: string) => {
-    setEditForm((prev) => ({
-      ...prev,
-      skills: prev.skills.filter((s) => s !== skillToRemove),
-    }));
+    setValue(
+      'skills',
+      currentSkills.filter((s) => s !== skillToRemove),
+      { shouldValidate: true }
+    );
   };
 
   return (
@@ -108,19 +182,20 @@ export default function WorkerEditProfile() {
             <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
               <div className="relative group shrink-0">
                 <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-background flex items-center justify-center border-4 border-muted shadow-sm">
-                  {editForm.avatar ? (
+                  {avatarUrl ? (
                     <img
-                      src={editForm.avatar}
+                      src={avatarUrl}
                       alt="Avatar"
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="w-full h-full bg-blue-100 flex items-center justify-center text-blue-500 font-bold text-3xl">
-                      {editForm.name.charAt(0)}
+                      {nameValue ? nameValue.charAt(0) : '?'}
                     </div>
                   )}
                 </div>
                 <button
+                  type="button"
                   className="absolute bottom-0 right-0 p-2.5 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-700 transition-colors"
                   title="Ubah Foto"
                   onClick={() =>
@@ -163,17 +238,13 @@ export default function WorkerEditProfile() {
                 </Label>
                 <Input
                   id="name"
-                  value={editForm.name}
-                  onChange={(e) => {
-                    setEditForm({ ...editForm, name: e.target.value });
-                    if (errors.name) setErrors({ ...errors, name: '' });
-                  }}
                   placeholder="Masukkan nama Anda"
-                  className={`h-12 shadow-sm ${errors.name ? 'border-destructive focus-visible:ring-destructive' : 'focus-visible:ring-blue-500'}`}
+                  {...register('name')}
+                  className={`h-12 shadow-sm ${errors.name ? 'border-destructive focus-visible:ring-destructive' : 'focus-visible:ring-blue-500'} px-4 rounded-lg`}
                 />
                 {errors.name && (
                   <p className="text-sm text-destructive font-medium">
-                    {errors.name}
+                    {errors.name.message}
                   </p>
                 )}
               </div>
@@ -187,17 +258,13 @@ export default function WorkerEditProfile() {
                 </Label>
                 <textarea
                   id="bio"
-                  value={editForm.bio}
-                  onChange={(e) => {
-                    setEditForm({ ...editForm, bio: e.target.value });
-                    if (errors.bio) setErrors({ ...errors, bio: '' });
-                  }}
                   placeholder="Ceritakan sedikit tentang keahlian/pengalaman Anda"
+                  {...register('bio')}
                   className={`flex w-full rounded-md border bg-background px-4 py-3 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px] resize-y ${errors.bio ? 'border-destructive focus-visible:ring-destructive' : 'border-input focus-visible:ring-blue-500'}`}
                 />
                 {errors.bio && (
                   <p className="text-sm text-destructive font-medium">
-                    {errors.bio}
+                    {errors.bio.message}
                   </p>
                 )}
               </div>
@@ -220,14 +287,14 @@ export default function WorkerEditProfile() {
                       }
                     }}
                     placeholder="Contoh: Mengetik, Desain, dll"
-                    disabled={editForm.skills.length >= 5}
-                    className="shadow-sm focus-visible:ring-blue-500 h-11"
+                    disabled={currentSkills.length >= 5}
+                    className="shadow-sm focus-visible:ring-blue-500 h-11 rounded-lg px-4"
                   />
                   <Button
                     type="button"
                     onClick={() => handleAddSkill()}
-                    disabled={editForm.skills.length >= 5 || !skillInput.trim()}
-                    className="px-6 gap-2 shrink-0 h-11 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                    disabled={currentSkills.length >= 5 || !skillInput.trim()}
+                    className="px-6 gap-2 shrink-0 h-11 bg-blue-600 hover:bg-blue-700 text-white shadow-sm rounded-lg"
                   >
                     <Plus className="w-4 h-4" />
                     <span className="hidden sm:inline font-semibold">
@@ -237,12 +304,12 @@ export default function WorkerEditProfile() {
                 </div>
                 {errors.skills && (
                   <p className="text-sm text-destructive font-medium">
-                    {errors.skills}
+                    {errors.skills.message}
                   </p>
                 )}
 
                 <div className="flex flex-wrap gap-2.5 mt-4 min-h-[40px] items-center p-4 bg-muted/30 border rounded-lg shadow-inner">
-                  {editForm.skills.map((skill, index) => (
+                  {currentSkills.map((skill, index) => (
                     <div
                       key={index}
                       className="px-3 py-1.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200 flex items-center gap-2 text-sm font-semibold shadow-sm transition-all hover:shadow"
@@ -258,7 +325,7 @@ export default function WorkerEditProfile() {
                       </button>
                     </div>
                   ))}
-                  {editForm.skills.length === 0 && (
+                  {currentSkills.length === 0 && (
                     <span className="text-sm text-muted-foreground/70 italic px-2">
                       Belum ada skill (min. 1 disarankan)
                     </span>
@@ -266,7 +333,7 @@ export default function WorkerEditProfile() {
                 </div>
               </div>
 
-              <AvailabilityCalendarForm />
+              <AvailabilityCalendarForm {...calendarProps} />
             </div>
 
             <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-8 border-t">
@@ -279,11 +346,19 @@ export default function WorkerEditProfile() {
                 Batal
               </Button>
               <Button
+                type="button"
                 size="lg"
-                onClick={handleSave}
+                onClick={handleSubmit(onSubmit)}
+                disabled={
+                  updateProfile.isPending || updateAvailability.isPending
+                }
                 className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm w-full sm:w-auto"
               >
-                <Save className="w-4 h-4" />
+                {updateProfile.isPending || updateAvailability.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
                 Simpan Perubahan
               </Button>
             </div>
