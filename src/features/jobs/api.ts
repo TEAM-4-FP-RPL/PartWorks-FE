@@ -11,6 +11,11 @@ export async function updateJob(id: string, payload: JobFormValues) {
   return data;
 }
 
+export async function deleteJob(id: string) {
+  const { data } = await api.delete(`/jobs/${id}`);
+  return data;
+}
+
 export interface EmployerJob {
   id: string;
   title: string;

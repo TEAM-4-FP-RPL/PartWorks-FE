@@ -13,7 +13,10 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
-import { useEmployerJobs } from '@/features/jobs/hooks/useEmployerJobs';
+import {
+  useEmployerJobs,
+  useDeleteJob,
+} from '@/features/jobs/hooks/useEmployerJobs';
 import { Pagination } from '@/components/ui/pagination';
 
 export default function EmployerJobsPage() {
@@ -30,8 +33,24 @@ export default function EmployerJobsPage() {
   const meta = data?.meta;
   const totalPages = meta ? Math.ceil(meta.total / meta.limit) : 0;
 
+  const deleteJobMutation = useDeleteJob();
+
   const handlePageChange = (newPage: number) => {
     router.push(`/employer/jobs?status=${status}&page=${newPage}`);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Apakah Anda yakin ingin menghapus lowongan ini?')) {
+      try {
+        await deleteJobMutation.mutateAsync(id);
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'Terjadi kesalahan yang tidak diketahui';
+        alert(`Gagal menghapus lowongan: ${errorMessage}`);
+      }
+    }
   };
 
   return (
@@ -141,13 +160,14 @@ export default function EmployerJobsPage() {
                               variant="outline"
                               size="sm"
                               className="h-8 text-destructive border-destructive/20 hover:bg-destructive/5 text-xs font-bold"
-                              onClick={() => {
-                                if (confirm('Hapus lowongan ini?')) {
-                                  alert('Belum ada endpoint delete job');
-                                }
-                              }}
+                              onClick={() => handleDelete(job.id)}
+                              disabled={deleteJobMutation.isPending}
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              {deleteJobMutation.isPending ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-3.5 h-3.5" />
+                              )}
                             </Button>
                           </div>
                         </td>
