@@ -7,6 +7,8 @@ import {
   Loader2,
   MoreVertical,
   LogOut,
+  Upload,
+  Trash2,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -21,10 +23,18 @@ import { useWorkerProfile } from '@/features/profile/hooks/useWorkerProfile';
 import { useWorkerAvailability } from '@/features/profile/hooks/useWorkerAvailability';
 import { parseBackendAvailability } from '@/features/profile/utils/availability';
 import { useAuthStore } from '@/store/auth';
+import UploadCVDialog from '@/features/cvs/components/UploadCVDialog';
+import UpdateCVDialog from '@/features/cvs/components/UpdateCVDialog';
+import DeleteCVDialog from '@/features/cvs/components/DeleteCVDialog';
+import { useState } from 'react';
 
 export default function WorkerProfile() {
   const router = useRouter();
   const clearToken = useAuthStore((state) => state.clearToken);
+
+  const [isUploadCVDialogOpen, setIsUploadCVDialogOpen] = useState(false);
+  const [isUpdateCVDialogOpen, setIsUpdateCVDialogOpen] = useState(false);
+  const [isDeleteCVDialogOpen, setIsDeleteCVDialogOpen] = useState(false);
 
   const { data: profile, isLoading: isProfileLoading } = useWorkerProfile();
   const { data: availability, isLoading: isAvailabilityLoading } =
@@ -178,11 +188,118 @@ export default function WorkerProfile() {
                     endHour={endHour}
                   />
                 </div>
+
+                <div className="mt-10">
+                  <div className="flex justify-between items-center mb-4 border-b pb-2">
+                    <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+                      Curriculum Vitae
+                    </h3>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => setIsUploadCVDialogOpen(true)}
+                          className="cursor-pointer"
+                        >
+                          <Upload className="w-4 h-4 mr-2" /> Upload CV Baru
+                        </DropdownMenuItem>
+                        {profile.cvs && profile.cvs.length > 0 && (
+                          <>
+                            <DropdownMenuItem
+                              onClick={() => setIsUpdateCVDialogOpen(true)}
+                              className="cursor-pointer"
+                            >
+                              <PenLine className="w-4 h-4 mr-2" /> Update CV
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setIsDeleteCVDialogOpen(true)}
+                              className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" /> Hapus CV
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {profile.cvs && profile.cvs.length > 0 ? (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {profile.cvs.map((cv, idx) => (
+                        <div
+                          key={cv.id || idx}
+                          className="flex flex-col rounded-xl border bg-muted/10 overflow-hidden hover:shadow-md transition-shadow"
+                        >
+                          {/* PDF Preview */}
+                          <div className="w-full h-52 bg-slate-100 relative overflow-hidden">
+                            <iframe
+                              src={`${process.env.NEXT_PUBLIC_API_URL}/${cv.file_url}`}
+                              className="w-full h-full pointer-events-none"
+                            />
+                            {/* Overlay to capture click and open in new tab */}
+                            <a
+                              href={`${process.env.NEXT_PUBLIC_API_URL}/${cv.file_url}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="absolute inset-0"
+                              title="Buka CV"
+                            />
+                          </div>
+                          {/* Footer */}
+                          <div className="flex items-center justify-between px-4 py-3 bg-white border-t">
+                            <p className="font-semibold text-sm text-foreground truncate">
+                              {cv.category?.name || 'Kategori Tidak Diketahui'}
+                            </p>
+                            <a
+                              href={cv.file_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-xs text-blue-600 font-medium hover:underline flex items-center gap-1 shrink-0 ml-2"
+                            >
+                              Buka ↗
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic bg-muted/50 p-4 rounded-lg inline-block w-full">
+                      Belum ada Curriculum Vitae yang diunggah.
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <UploadCVDialog
+        open={isUploadCVDialogOpen}
+        onOpenChange={setIsUploadCVDialogOpen}
+      />
+      {profile.cvs && profile.cvs.length > 0 && (
+        <>
+          <UpdateCVDialog
+            open={isUpdateCVDialogOpen}
+            onOpenChange={setIsUpdateCVDialogOpen}
+            initialCVs={profile.cvs}
+          />
+          <DeleteCVDialog
+            open={isDeleteCVDialogOpen}
+            onOpenChange={setIsDeleteCVDialogOpen}
+            initialCVs={profile.cvs}
+          />
+        </>
+      )}
     </div>
   );
 }
