@@ -27,6 +27,7 @@ import UploadCVDialog from '@/features/cvs/components/UploadCVDialog';
 import UpdateCVDialog from '@/features/cvs/components/UpdateCVDialog';
 import DeleteCVDialog from '@/features/cvs/components/DeleteCVDialog';
 import { useState } from 'react';
+import { WorkerCV } from '@/features/cvs/types';
 
 export default function WorkerProfile() {
   const router = useRouter();
@@ -233,7 +234,7 @@ export default function WorkerProfile() {
 
                   {profile.cvs && profile.cvs.length > 0 ? (
                     <div className="grid gap-4 sm:grid-cols-2">
-                      {profile.cvs.map((cv, idx) => (
+                      {profile.cvs.map((cv: WorkerCV, idx: number) => (
                         <div
                           key={cv.id || idx}
                           className="flex flex-col rounded-xl border bg-muted/10 overflow-hidden hover:shadow-md transition-shadow"
