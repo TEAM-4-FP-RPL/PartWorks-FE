@@ -1,3 +1,5 @@
+import { WorkerCV } from '@/features/cvs/types';
+
 // Worker Interfaces
 export interface WorkerProfileData {
   id: string;
@@ -7,7 +9,7 @@ export interface WorkerProfileData {
   skills: string;
   photo_url: string;
   availabilities: WorkerAvailabilityData[];
-  cvs: string[];
+  cvs: WorkerCV[];
 }
 
 export interface WorkerAvailabilityData {
