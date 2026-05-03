@@ -4,71 +4,97 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useStore } from '@/store/store';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Send, Briefcase, User, Mail, Phone, FileText, MapPin, Banknote, Clock, Upload } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  ArrowLeft,
+  Send,
+  Briefcase,
+  FileText,
+  MapPin,
+  Banknote,
+  Clock,
+  CheckCircle2,
+} from 'lucide-react';
+import { useWorkerProfile } from '@/features/profile/hooks/useWorkerProfile';
+import { useApplyJob } from '@/features/apply job/hooks/useApplyJob';
+import { WorkerCV } from '@/features/cvs/types';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { applyJobSchema, ApplyJobFormValues } from '@/features/jobs/schemas';
+import { useGetJobById } from '@/features/jobs/hooks/useGetJobById';
 
 export default function QuickApplyPage() {
   const router = useRouter();
   const { id } = useParams();
-  const { jobs } = useStore();
-  const [mounted, setMounted] = useState(false);
-  const job = jobs.find((j) => j.id === id);
+  const { data: job, isLoading: isJobLoading } = useGetJobById(id as string);
 
-  const [form, setForm] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    experience: '',
-    resumeFile: null as File | null,
+  const { data: profile, isLoading: isProfileLoading } = useWorkerProfile();
+  const { mutate: applyJob, isPending } = useApplyJob();
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<ApplyJobFormValues>({
+    resolver: zodResolver(applyJobSchema),
+    defaultValues: {
+      cv_id: '',
+      cover_note: '',
+    },
   });
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const selectedCvId = watch('cv_id');
 
-  if (!mounted) return null;
+  if (isJobLoading) return null;
 
   if (!job) {
     return (
       <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center p-6 font-sans">
-        <h2 className="text-xl font-bold text-slate-800 mb-2">Lowongan Tidak Ditemukan</h2>
-        <p className="text-sm text-slate-500 mb-6">Pekerjaan yang Anda lamar tidak tersedia.</p>
-        <Button onClick={() => router.back()} className="bg-blue-600 text-white font-bold h-10 px-6 rounded-xl">
+        <h2 className="text-xl font-bold text-slate-800 mb-2">
+          Lowongan Tidak Ditemukan
+        </h2>
+        <p className="text-sm text-slate-500 mb-6">
+          Pekerjaan yang Anda lamar tidak tersedia.
+        </p>
+        <Button
+          onClick={() => router.back()}
+          className="bg-blue-600 text-white font-bold h-10 px-6 rounded-xl"
+        >
           <ArrowLeft className="w-4 h-4 mr-2" /> KEMBALI
         </Button>
       </div>
     );
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (file.type !== 'application/pdf') {
-        alert('Hanya format file PDF yang diperbolehkan.');
-        e.target.value = ''; 
-        setForm({ ...form, resumeFile: null });
-        return;
+  const onSubmit = (data: ApplyJobFormValues) => {
+    applyJob(
+      { jobId: job.id, payload: data },
+      {
+        onSuccess: () => {
+          router.push('/jobs');
+        },
       }
-      setForm({ ...form, resumeFile: file });
-    }
+    );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.resumeFile) {
-      alert('Silakan unggah dokumen PDF lamaran Anda terlebih dahulu.');
-      return;
-    }
-    
-    alert(`Lamaran untuk posisi ${job.title} berhasil dikirim beserta dokumen ${form.resumeFile.name}!`);
-    router.push('/jobs');
-  };
+  const selectedCv = profile?.cvs?.find(
+    (cv: WorkerCV) => cv.id === selectedCvId
+  );
 
   return (
     <div className="min-h-screen bg-slate-50/50 font-sans">
-      
-      {}
       <section className="bg-primary text-primary-foreground py-12 md:py-16">
         <div className="mx-auto max-w-4xl px-4 md:px-6">
           <Button
@@ -87,105 +113,146 @@ export default function QuickApplyPage() {
         </div>
       </section>
 
-      {}
       <section className="mx-auto max-w-4xl px-4 py-10 md:px-6 grid gap-8 md:grid-cols-3">
-        
-        {}
         <div className="md:col-span-2 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <h3 className="text-sm font-bold text-slate-900 tracking-widest uppercase flex items-center gap-2 mb-4">
-              <User className="w-4 h-4 text-blue-600" /> Informasi Pelamar
+              <FileText className="w-4 h-4 text-blue-600" /> Form Lamaran
             </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                  Nama Lengkap
+                  Surat Lamaran (Cover Note){' '}
+                  <span className="text-red-500">*</span>
                 </Label>
-                <Input 
-                  required
-                  value={form.fullName}
-                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                  placeholder="Masukkan nama lengkap Anda" 
-                  className="h-11 rounded-xl border-slate-200 focus-visible:ring-blue-600" 
+                <Textarea
+                  {...register('cover_note')}
+                  placeholder="Tuliskan alasan mengapa Anda cocok untuk posisi ini..."
+                  className={`min-h-[120px] rounded-xl border-slate-200 focus-visible:ring-blue-600 resize-none ${errors.cover_note ? 'border-red-500 focus-visible:ring-red-500' : ''} px-4`}
                 />
+                {errors.cover_note && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.cover_note.message}
+                  </p>
+                )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5" /> Email
-                  </Label>
-                  <Input 
-                    required
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="contoh@email.com" 
-                    className="h-11 rounded-xl border-slate-200 focus-visible:ring-blue-600" 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5" /> Nomor Telepon
-                  </Label>
-                  <Input 
-                    required
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="08123456789" 
-                    className="h-11 rounded-xl border-slate-200 focus-visible:ring-blue-600" 
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                  Pengalaman Kerja (Tahun)
-                </Label>
-                <Input 
-                  required
-                  type="number"
-                  value={form.experience}
-                  onChange={(e) => setForm({ ...form, experience: e.target.value })}
-                  placeholder="Contoh: 1" 
-                  className="h-11 rounded-xl border-slate-200 focus-visible:ring-blue-600" 
-                />
-              </div>
-
-              {}
               <div className="space-y-2">
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-                  <FileText className="w-3.5 h-3.5" /> Unggah Berkas Lamaran (PDF)
+                  <FileText className="w-3.5 h-3.5" /> Pilih CV{' '}
+                  <span className="text-red-500">*</span>
                 </Label>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <Input 
-                      required
-                      type="file" 
-                      accept="application/pdf"
-                      onChange={handleFileChange}
-                      className="file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 h-11 rounded-xl border-slate-200 cursor-pointer p-1"
-                    />
+
+                {isProfileLoading ? (
+                  <p className="text-sm text-slate-500">Memuat CV...</p>
+                ) : (
+                  <div className="flex items-center gap-4">
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className={`h-11 rounded-xl ${errors.cv_id ? 'border-red-500 text-red-500 hover:text-red-600 hover:bg-red-50' : ''}`}
+                        >
+                          {selectedCv ? 'Ganti CV' : 'Pilih CV dari Profil'}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle className="font-sans">
+                            Pilih CV
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          {profile?.cvs && profile.cvs.length > 0 ? (
+                            <div className="grid gap-3">
+                              {profile.cvs.map((cv: WorkerCV) => (
+                                <div
+                                  key={cv.id}
+                                  onClick={() => {
+                                    setValue('cv_id', cv.id, {
+                                      shouldValidate: true,
+                                    });
+                                    setIsDialogOpen(false);
+                                  }}
+                                  className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
+                                    selectedCvId === cv.id
+                                      ? 'border-blue-600 bg-blue-50'
+                                      : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <FileText
+                                      className={`w-5 h-5 ${selectedCvId === cv.id ? 'text-blue-600' : 'text-slate-400'}`}
+                                    />
+                                    <div>
+                                      <p
+                                        className={`font-semibold text-sm ${selectedCvId === cv.id ? 'text-blue-900' : 'text-slate-700'}`}
+                                      >
+                                        {cv.category?.name || 'CV Umum'}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  {selectedCvId === cv.id && (
+                                    <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-center text-slate-500 py-4">
+                              Anda belum mengunggah CV. Silakan unggah CV
+                              melalui halaman{' '}
+                              <a
+                                href="/profile"
+                                className="text-blue-600 underline"
+                              >
+                                Profil
+                              </a>
+                              .
+                            </p>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                    <div className="flex-1 text-sm">
+                      {selectedCv ? (
+                        <span className="font-medium text-slate-700">
+                          {selectedCv.category?.name || 'CV Umum'}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 italic">
+                          Belum ada CV yang dipilih
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-[10px] text-slate-400">
-                    {form.resumeFile ? form.resumeFile.name : "Maks. 5MB"}
-                  </div>
-                </div>
+                )}
+                {errors.cv_id && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.cv_id.message}
+                  </p>
+                )}
               </div>
             </div>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
+              disabled={isPending}
               className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold gap-2 mt-4"
             >
-              <Send className="w-4 h-4" /> KIRIM LAMARAN
+              {isPending ? (
+                'MENGIRIM...'
+              ) : (
+                <>
+                  <Send className="w-4 h-4" /> KIRIM LAMARAN
+                </>
+              )}
             </Button>
           </form>
         </div>
 
-        {}
         <div className="md:col-span-1 space-y-6">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5 sticky top-6">
             <div className="p-3 bg-blue-50/75 w-fit rounded-2xl text-blue-600">
@@ -205,17 +272,16 @@ export default function QuickApplyPage() {
                 <MapPin className="w-3.5 h-3.5 text-slate-400" /> {job.location}
               </div>
               <div className="flex items-center gap-2 font-medium">
-                <Banknote className="w-3.5 h-3.5 text-slate-400" /> 
-                Rp {job.payRate.toLocaleString()} / {job.payType}
+                <Banknote className="w-3.5 h-3.5 text-slate-400" />
+                Rp {job.salary.toLocaleString()} / {job.payType}
               </div>
               <div className="flex items-center gap-2 text-slate-400">
-                <Clock className="w-3.5 h-3.5" /> 
+                <Clock className="w-3.5 h-3.5" />
                 {Array.isArray(job.shifts) ? job.shifts.join(', ') : 'Tersedia'}
               </div>
             </div>
           </div>
         </div>
-
       </section>
     </div>
   );
