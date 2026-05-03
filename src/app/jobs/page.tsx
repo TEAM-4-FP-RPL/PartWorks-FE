@@ -88,7 +88,7 @@ export default function JobListPage() {
         {/* Filter Section */}
         <section className="mx-auto max-w-7xl px-4 py-8 md:px-6 space-y-8">
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
               <div className="relative">
                 <Search className="absolute left-4 top-3.5 h-4 w-4 text-slate-400" />
                 <Input
@@ -122,7 +122,7 @@ export default function JobListPage() {
                   setPage(1);
                 }}
               >
-                <SelectTrigger className="h-11 bg-slate-50 border-slate-200 focus:ring-blue-600 rounded-xl">
+                <SelectTrigger className="h-11 bg-slate-50 border-slate-200 focus:ring-blue-600 rounded-xl px-4 w-full">
                   <SelectValue placeholder="Kategori" />
                 </SelectTrigger>
                 <SelectContent>
@@ -142,7 +142,7 @@ export default function JobListPage() {
                   setPage(1);
                 }}
               >
-                <SelectTrigger className="h-11 bg-slate-50 border-slate-200 focus:ring-blue-600 rounded-xl">
+                <SelectTrigger className="h-11 bg-slate-50 border-slate-200 focus:ring-blue-600 rounded-xl px-4 w-full">
                   <SelectValue placeholder="Tipe Pekerjaan" />
                 </SelectTrigger>
                 <SelectContent>
