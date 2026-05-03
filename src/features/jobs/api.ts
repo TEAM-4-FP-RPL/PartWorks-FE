@@ -16,52 +16,27 @@ export async function deleteJob(id: string) {
   return data;
 }
 
-export interface EmployerJob {
-  id: string;
-  title: string;
-  description: string;
-  type: string;
-  status: string;
-  salary: number;
-  location: string;
-  category: {
-    id: number;
-    name: string;
-  };
-  employer: {
-    id: string;
-    company_name: string;
-    logo_url: string;
-  };
-  total_applicants: number;
-  schedules: {
-    day: string;
-    start_time: string;
-    end_time: string;
-  }[];
-  work_hours_per_week: number;
-  created_at: string;
-}
-
-export interface JobsResponse {
-  data: EmployerJob[];
-  meta: {
-    limit: number;
-    page: number;
-    total: number;
-  };
-}
-
 export async function getEmployerJobs(params: {
   status?: string;
   page?: number;
   limit?: number;
 }) {
-  const { data } = await api.get<JobsResponse>('/employer/jobs', { params });
+  const { data } = await api.get('/employer/jobs', { params });
+  return data;
+}
+
+export async function getJobs(params: {
+  type?: string;
+  page?: number;
+  search?: string;
+  location?: string;
+  category_id?: number | string;
+}) {
+  const { data } = await api.get('/jobs', { params });
   return data;
 }
 
 export async function getJobById(id: string) {
-  const { data } = await api.get<{ data: EmployerJob }>(`/jobs/${id}`);
+  const { data } = await api.get(`/jobs/${id}`);
   return data.data;
 }
