@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useStore } from '@/store/store';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,7 +27,10 @@ import { useApplyJob } from '@/features/apply job/hooks/useApplyJob';
 import { WorkerCV } from '@/features/cvs/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { applyJobSchema, ApplyJobFormValues } from '@/features/jobs/schemas';
+import {
+  applyJobSchema,
+  ApplyJobFormValues,
+} from '@/features/apply job/schemas';
 import { useGetJobById } from '@/features/jobs/hooks/useGetJobById';
 
 export default function QuickApplyPage() {

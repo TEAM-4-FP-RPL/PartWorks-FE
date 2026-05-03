@@ -37,6 +37,14 @@ export function Navbar() {
               Dashboard
             </Link>
           )}
+          {role === 'worker' && (
+            <Link
+              href="/worker/applications"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Lamaran
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-2">
