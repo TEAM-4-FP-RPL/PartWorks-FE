@@ -18,6 +18,7 @@ import {
   useDeleteJob,
 } from '@/features/jobs/hooks/useEmployerJobs';
 import { Pagination } from '@/components/ui/pagination';
+import { EmployerJob } from '../types';
 
 export default function EmployerJobsContent() {
   const router = useRouter();
@@ -113,7 +114,7 @@ export default function EmployerJobsContent() {
                   )}
                   {!isLoading &&
                     !isError &&
-                    jobs.map((job) => (
+                    jobs.map((job: EmployerJob) => (
                       <tr
                         key={job.id}
                         className="hover:bg-muted/30 transition-colors"

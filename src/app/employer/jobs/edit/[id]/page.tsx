@@ -2,7 +2,7 @@
 
 import { JobForm } from '@/features/jobs/components/JobForm';
 import { useUpdateJob } from '@/features/jobs/hooks/useUpdateJob';
-import { useJob } from '@/features/jobs/hooks/useJob';
+import { useGetJobById } from '@/features/jobs/hooks/useGetJobById';
 import { JobFormValues } from '@/features/jobs/schemas';
 import { useRouter, useParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
@@ -11,7 +11,7 @@ export default function EditJobPage() {
   const router = useRouter();
   const { id } = useParams();
 
-  const { data: job, isLoading, isError } = useJob(id as string);
+  const { data: job, isLoading, isError } = useGetJobById(id as string);
   const { mutate: updateJob, isPending } = useUpdateJob();
 
   if (isLoading) {
