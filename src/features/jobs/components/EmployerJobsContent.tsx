@@ -11,14 +11,23 @@ import {
   Plus,
   Briefcase,
   Loader2,
+  MoreVertical,
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Navbar } from '@/components/Navbar';
 import {
   useEmployerJobs,
   useDeleteJob,
+  useUpdateJobStatus,
 } from '@/features/jobs/hooks/useEmployerJobs';
 import { Pagination } from '@/components/ui/pagination';
 import { EmployerJob } from '../types';
+import Link from 'next/link';
 
 export default function EmployerJobsContent() {
   const router = useRouter();
@@ -35,6 +44,7 @@ export default function EmployerJobsContent() {
   const totalPages = meta ? Math.ceil(meta.total / meta.limit) : 0;
 
   const deleteJobMutation = useDeleteJob();
+  const updateStatusMutation = useUpdateJobStatus();
 
   const handlePageChange = (newPage: number) => {
     router.push(`/employer/jobs?status=${status}&page=${newPage}`);
@@ -51,6 +61,21 @@ export default function EmployerJobsContent() {
             : 'Terjadi kesalahan yang tidak diketahui';
         alert(`Gagal menghapus lowongan: ${errorMessage}`);
       }
+    }
+  };
+
+  const handleStatusChange = async (
+    id: string,
+    newStatus: 'open' | 'closed'
+  ) => {
+    try {
+      await updateStatusMutation.mutateAsync({ id, status: newStatus });
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Terjadi kesalahan yang tidak diketahui';
+      alert(`Gagal mengubah status: ${errorMessage}`);
     }
   };
 
@@ -75,6 +100,22 @@ export default function EmployerJobsContent() {
             >
               <Plus className="w-4 h-4" /> Pasang Lowongan Baru
             </Button>
+          </div>
+
+          <div className="inline-flex rounded-lg border border-border bg-muted/40 p-1 gap-1">
+            {(['open', 'closed'] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => router.push(`/employer/jobs?status=${s}&page=1`)}
+                className={`px-5 py-1.5 rounded-md text-sm font-semibold capitalize transition-colors ${
+                  status === s
+                    ? 'bg-white shadow-sm text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {s === 'open' ? 'Open' : 'Closed'}
+              </button>
+            ))}
           </div>
 
           <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden flex flex-col">
@@ -122,7 +163,11 @@ export default function EmployerJobsContent() {
                         <td className="py-4 px-6 font-semibold">
                           {job.employer?.company_name || '-'}
                         </td>
-                        <td className="py-4 px-6 font-bold">{job.title}</td>
+                        <td className="py-4 px-6 font-bold">
+                          <Link href={`/employer/jobs/${job.id}`}>
+                            {job.title}
+                          </Link>
+                        </td>
                         <td className="py-4 px-6">
                           <div className="flex flex-col gap-0.5 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1.5">
@@ -140,7 +185,7 @@ export default function EmployerJobsContent() {
                         </td>
                         <td className="py-4 px-6">
                           <Badge
-                            className={`${job.status === 'open' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-700 border-slate-200'} text-[10px] px-2.5 py-0.5 rounded uppercase tracking-wider`}
+                            className={`${job.status === 'open' ? 'bg-green-500 text-white border-emerald-200' : 'bg-red-500 text-white border-slate-200'} text-[10px] px-2.5 py-0.5 rounded uppercase tracking-wider`}
                           >
                             {job.status}
                           </Badge>
@@ -150,7 +195,7 @@ export default function EmployerJobsContent() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-8 border-border text-xs font-bold"
+                              className="h-8 border-border text-xs font-bold rounded-md"
                               onClick={() =>
                                 router.push(`/employer/jobs/edit/${job.id}`)
                               }
@@ -160,7 +205,7 @@ export default function EmployerJobsContent() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-8 text-destructive border-destructive/20 hover:bg-destructive/5 text-xs font-bold"
+                              className="h-8 text-destructive border-destructive/20 hover:bg-destructive/5 text-xs font-bold rounded-md"
                               onClick={() => handleDelete(job.id)}
                               disabled={deleteJobMutation.isPending}
                             >
@@ -170,6 +215,35 @@ export default function EmployerJobsContent() {
                                 <Trash2 className="w-3.5 h-3.5" />
                               )}
                             </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 border-0"
+                                >
+                                  <MoreVertical className="w-3.5 h-3.5" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  disabled={job.status === 'open'}
+                                  onClick={() =>
+                                    handleStatusChange(job.id, 'open')
+                                  }
+                                >
+                                  Tandai sebagai Open
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  disabled={job.status === 'closed'}
+                                  onClick={() =>
+                                    handleStatusChange(job.id, 'closed')
+                                  }
+                                >
+                                  Tandai sebagai Closed
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </td>
                       </tr>
