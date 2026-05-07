@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { applyJob } from '../api';
+import { toast } from 'sonner';
 
 export const useApplyJob = () => {
   return useMutation({
@@ -10,11 +11,7 @@ export const useApplyJob = () => {
       jobId: string;
       payload: { cv_id: string; cover_note: string };
     }) => applyJob(jobId, payload),
-    onSuccess: () => {
-      alert('Lamaran berhasil dikirim!');
-    },
-    onError: () => {
-      alert('Gagal mengirim lamaran.');
-    },
+    onSuccess: () => toast.success('Lamaran berhasil dikirim!'),
+    onError: () => toast.error('Gagal mengirim lamaran.'),
   });
 };

@@ -162,17 +162,23 @@ export default function ApplicationsPage() {
                               </div>
                             </td>
                             <td className="px-6 py-5 align-middle">
-                              <a
-                                href={`${process.env.NEXT_PUBLIC_API_URL || ''}${app.cv.file_url}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20"
-                              >
-                                <FileText className="w-4 h-4" />
-                                <span className="font-bold text-xs">
-                                  {app.cv.category.name}
+                              {app.cv ? (
+                                <a
+                                  href={app.cv.file_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20"
+                                >
+                                  <FileText className="w-4 h-4" />
+                                  <span className="font-bold text-xs">
+                                    {app.cv.category?.name ?? 'CV'}
+                                  </span>
+                                </a>
+                              ) : (
+                                <span className="text-xs text-muted-foreground italic">
+                                  Tidak ada CV
                                 </span>
-                              </a>
+                              )}
                             </td>
                           </tr>
                         );

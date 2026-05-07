@@ -234,12 +234,12 @@ export default function WorkerProfile() {
                           {/* PDF Preview */}
                           <div className="w-full h-52 bg-muted relative overflow-hidden">
                             <iframe
-                              src={`${process.env.NEXT_PUBLIC_API_URL}/${cv.file_url}`}
+                              src={cv.file_url}
                               className="w-full h-full pointer-events-none"
                             />
                             {/* Overlay to capture click and open in new tab */}
                             <a
-                              href={`${process.env.NEXT_PUBLIC_API_URL}/${cv.file_url}`}
+                              href={cv.file_url}
                               target="_blank"
                               rel="noreferrer"
                               className="absolute inset-0"

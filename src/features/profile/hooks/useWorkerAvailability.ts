@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getWorkerAvailability, updateWorkerAvailability } from '../api';
+import { toast } from 'sonner';
 
 export const useWorkerAvailability = () => {
   return useQuery({
@@ -10,11 +11,12 @@ export const useWorkerAvailability = () => {
 
 export const useUpdateWorkerAvailability = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: updateWorkerAvailability,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workerAvailability'] });
+      toast.success('Ketersediaan kerja berhasil diperbarui.');
     },
+    onError: () => toast.error('Gagal memperbarui ketersediaan kerja.'),
   });
 };

@@ -1,11 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 
-import { useGetJobApplicants } from '@/features/employer/hooks/useGetJobApplicants';
+import {
+  useGetJobApplicants,
+  useUpdateApplicationStatus,
+} from '@/features/employer/hooks/useGetJobApplicants';
 import { useParams, useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import {
   Calendar,
   FileText,
@@ -13,8 +23,9 @@ import {
   ArrowLeft,
   MapPin,
   Banknote,
+  CheckCircle,
+  XCircle,
 } from 'lucide-react';
-import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { Spinner } from '@/components/ui/spinner';
 import { useGetJobById } from '@/features/jobs/hooks/useGetJobById';
@@ -59,9 +70,24 @@ export default function EmployerJobDetailPage() {
 
   const { data, isLoading } = useGetJobApplicants(id);
   const { data: job, isLoading: isLoadingJob } = useGetJobById(id);
+  const updateStatus = useUpdateApplicationStatus(id);
+
+  const [confirm, setConfirm] = useState<{
+    app: Application;
+    action: 'accepted' | 'rejected';
+  } | null>(null);
 
   const applications = data as Application[] | undefined;
   const jobDetail = job as EmployerJob | undefined;
+
+  const handleConfirm = async () => {
+    if (!confirm) return;
+    await updateStatus.mutateAsync({
+      id: confirm.app.id,
+      status: confirm.action,
+    });
+    setConfirm(null);
+  };
 
   if (isLoading || isLoadingJob) {
     return (
@@ -78,18 +104,17 @@ export default function EmployerJobDetailPage() {
     <>
       <Navbar />
       <div className="min-h-screen bg-background font-sans">
-        {/* Hero */}
-        <section className="bg-primary text-primary-foreground py-8 md:py-10">
+        <section className="bg-primary text-primary-foreground py-6 md:py-10">
           <div className="mx-auto max-w-5xl px-4 md:px-6">
             <Button
               variant="ghost"
               onClick={() => router.back()}
-              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-transparent gap-2 mb-4 rounded-full -ml-6"
+              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-transparent gap-2 mb-3 rounded-full -ml-2"
             >
               <ArrowLeft className="w-4 h-4" /> Kembali
             </Button>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <h1 className="text-2xl font-extrabold tracking-tight md:text-3xl">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <h1 className="text-xl font-extrabold tracking-tight md:text-3xl">
                 {jobDetail?.title}
               </h1>
               <Badge
@@ -103,7 +128,7 @@ export default function EmployerJobDetailPage() {
                 {jobDetail?.status === 'open' ? 'Buka' : 'Tutup'}
               </Badge>
             </div>
-            <div className="flex flex-wrap gap-4 text-sm text-primary-foreground/80 mt-3">
+            <div className="flex flex-wrap gap-3 text-sm text-primary-foreground/80 mt-2">
               <span className="flex items-center gap-1.5">
                 <MapPin className="w-4 h-4" /> {jobDetail?.location}
               </span>
@@ -136,6 +161,7 @@ export default function EmployerJobDetailPage() {
                   label: app.status,
                   className: 'bg-muted text-muted-foreground',
                 };
+                const isPending = app.status.toLowerCase() === 'pending';
                 return (
                   <div
                     key={app.id}
@@ -159,7 +185,7 @@ export default function EmployerJobDetailPage() {
                             {app.worker.full_name}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {app.cv.category.name}
+                            {app.cv?.category?.name}
                           </p>
                         </div>
                       </div>
@@ -178,26 +204,46 @@ export default function EmployerJobDetailPage() {
                       Dilamar {formatDate(app.applied_at)}
                     </div>
 
-                    <div className="flex gap-2 pt-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 rounded-lg"
-                        asChild
-                      >
-                        <a
-                          href={`${process.env.NEXT_PUBLIC_API_URL}/${app.cv.file_url}`}
-                          target="_blank"
-                          rel="noreferrer"
+                    <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                      {app.cv?.file_url && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full sm:flex-1 rounded-lg"
+                          asChild
                         >
-                          <FileText className="mr-2 h-3.5 w-3.5" /> Lihat CV
-                        </a>
-                      </Button>
-                      <Button size="sm" className="flex-1 rounded-lg" asChild>
-                        <Link href={`/employer/applicants/${app.id}`}>
-                          Tinjau Pelamar
-                        </Link>
-                      </Button>
+                          <a
+                            href={`${process.env.NEXT_PUBLIC_API_URL}/${app.cv.file_url}`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <FileText className="mr-2 h-3.5 w-3.5" /> Lihat CV
+                          </a>
+                        </Button>
+                      )}
+                      {isPending && (
+                        <div className="flex gap-2 w-full sm:flex-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 rounded-lg border-red-200 text-red-600 hover:bg-red-50 gap-1.5"
+                            onClick={() =>
+                              setConfirm({ app, action: 'rejected' })
+                            }
+                          >
+                            <XCircle className="w-3.5 h-3.5" /> Tolak
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="flex-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
+                            onClick={() =>
+                              setConfirm({ app, action: 'accepted' })
+                            }
+                          >
+                            <CheckCircle className="w-3.5 h-3.5" /> Terima
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -206,6 +252,41 @@ export default function EmployerJobDetailPage() {
           )}
         </section>
       </div>
+
+      {/* Confirm Dialog */}
+      <Dialog open={!!confirm} onOpenChange={(o) => !o && setConfirm(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-sans">
+              {confirm?.action === 'accepted'
+                ? 'Terima Pelamar'
+                : 'Tolak Pelamar'}
+            </DialogTitle>
+            <DialogDescription>
+              {confirm?.action === 'accepted'
+                ? `Apakah Anda yakin ingin menerima lamaran dari ${confirm?.app.worker.full_name}?`
+                : `Apakah Anda yakin ingin menolak lamaran dari ${confirm?.app.worker.full_name}?`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 justify-end mt-2">
+            <Button variant="outline" onClick={() => setConfirm(null)}>
+              Batal
+            </Button>
+            <Button
+              onClick={handleConfirm}
+              disabled={updateStatus.isPending}
+              className={
+                confirm?.action === 'accepted'
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  : 'bg-red-600 hover:bg-red-700 text-white'
+              }
+            >
+              {updateStatus.isPending && <Spinner className="w-4 h-4 mr-2" />}
+              {confirm?.action === 'accepted' ? 'Ya, Terima' : 'Ya, Tolak'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

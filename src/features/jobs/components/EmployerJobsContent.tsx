@@ -85,7 +85,7 @@ export default function EmployerJobsContent() {
       <Navbar />
       <div className="min-h-screen bg-background font-sans">
         <section className="mx-auto max-w-7xl px-4 py-12 md:px-6 space-y-8">
-          <div className="flex items-end justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold tracking-tight md:text-3xl flex items-center gap-2">
                 Daftar Lowongan
@@ -96,7 +96,7 @@ export default function EmployerJobsContent() {
             </div>
             <Button
               onClick={() => router.push('/employer/jobs/create')}
-              className="h-11 px-6 rounded-md font-medium gap-2"
+              className="h-11 px-6 rounded-md font-medium gap-2 w-full sm:w-auto"
             >
               <Plus className="w-4 h-4" /> Pasang Lowongan Baru
             </Button>

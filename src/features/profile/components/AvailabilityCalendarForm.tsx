@@ -93,14 +93,14 @@ export default function AvailabilityCalendarForm({
         <p className="text-xs font-semibold uppercase tracking-wide">
           Jam shift
         </p>
-        <div className="flex items-end justify-between">
-          <div className="space-y-1.5">
+        <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+          <div className="space-y-1.5 flex-1">
             <Label className="text-xs text-muted-foreground">Mulai</Label>
             <Select
               value={startHour !== null ? String(startHour) : ''}
               onValueChange={handleStartHour}
             >
-              <SelectTrigger className="min-w-52 bg-secondary p-2 rounded-md">
+              <SelectTrigger className="w-full bg-secondary p-2 rounded-md">
                 <SelectValue placeholder="00.00" />
               </SelectTrigger>
               <SelectContent>
@@ -113,14 +113,14 @@ export default function AvailabilityCalendarForm({
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5 flex-1">
             <Label className="text-xs text-muted-foreground">Selesai</Label>
             <Select
               value={endHour !== null ? String(endHour) : ''}
               onValueChange={handleEndHour}
               disabled={startHour === null}
             >
-              <SelectTrigger className="min-w-52 bg-secondary p-2 rounded-md">
+              <SelectTrigger className="w-full bg-secondary p-2 rounded-md">
                 <SelectValue placeholder="00.00" />
               </SelectTrigger>
               <SelectContent>

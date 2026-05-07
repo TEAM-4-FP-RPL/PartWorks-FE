@@ -1,22 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 import { createJob } from '../api';
-
-export interface CreateJobPayload {
-  category_id: number;
-  title: string;
-  description: string;
-  type: string;
-  salary: number;
-  location: string;
-  schedules: {
-    day: string;
-    start_time: string;
-    end_time: string;
-  }[];
-}
+import { toast } from 'sonner';
 
 export const useCreateJob = () => {
   return useMutation({
     mutationFn: createJob,
+    onSuccess: () => toast.success('Lowongan berhasil dibuat.'),
+    onError: () => toast.error('Gagal membuat lowongan.'),
   });
 };

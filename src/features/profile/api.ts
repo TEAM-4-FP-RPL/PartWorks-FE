@@ -12,7 +12,17 @@ export async function getWorkerProfile() {
 }
 
 export async function updateWorkerProfile(payload: WorkerProfilePayload) {
-  const { data } = await api.patch('/worker/profile', payload);
+  const formData = new FormData();
+  formData.append('full_name', payload.full_name);
+  formData.append('bio', payload.bio);
+  formData.append('skills', payload.skills);
+  if (payload.phone_number)
+    formData.append('phone_number', payload.phone_number);
+  if (payload.photo) formData.append('photo', payload.photo);
+
+  const { data } = await api.patch('/worker/profile', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return data;
 }
 
@@ -37,6 +47,13 @@ export async function getEmployerProfile() {
 }
 
 export async function updateEmployerProfile(payload: EmployerProfilePayload) {
-  const { data } = await api.patch('/employer/profile', payload);
+  const formData = new FormData();
+  formData.append('company_name', payload.company_name);
+  formData.append('description', payload.description);
+  if (payload.logo) formData.append('logo', payload.logo);
+
+  const { data } = await api.patch('/employer/profile', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return data;
 }

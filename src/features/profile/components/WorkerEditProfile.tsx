@@ -49,6 +49,7 @@ export default function WorkerEditProfile() {
   });
 
   const [skillInput, setSkillInput] = useState('');
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const avatarUrl = watch('avatar');
   const nameValue = watch('name');
   const currentSkills = watch('skills') || [];
@@ -82,6 +83,7 @@ export default function WorkerEditProfile() {
         full_name: data.name,
         bio: data.bio,
         skills: data.skills.join(','),
+        ...(photoFile && { photo: photoFile }),
       });
       await updateAvailability.mutateAsync(
         formatToBackendAvailability(
@@ -169,6 +171,7 @@ export default function WorkerEditProfile() {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
+                    setPhotoFile(file);
                     const url = URL.createObjectURL(file);
                     setValue('avatar', url);
                   }}

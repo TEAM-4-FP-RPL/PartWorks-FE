@@ -9,16 +9,17 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { QueryProvider } from '@/components/QueryProvider';
 import AuthInitializer from '@/components/AuthInitializer';
+import { Toaster } from '@/components/ui/sonner';
 
 const playfairDisplayHeading = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-heading',
 });
 
-const notoSans = Noto_Sans({ 
-  subsets: ['latin'], 
+const notoSans = Noto_Sans({
+  subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
-  variable: '--font-sans' 
+  variable: '--font-sans',
 });
 
 const geistSans = Geist({
@@ -43,16 +44,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <body className={cn(
+      <body
+        className={cn(
           'min-h-full flex flex-col antialiased',
-          notoSans.variable, 
+          notoSans.variable,
           playfairDisplayHeading.variable,
           geistSans.variable,
           geistMono.variable,
-          'font-sans' 
-        )}>
+          'font-sans'
+        )}
+      >
         <AuthInitializer />
         <QueryProvider>{children}</QueryProvider>
+        <Toaster />
       </body>
     </html>
   );

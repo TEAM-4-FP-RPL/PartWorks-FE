@@ -23,6 +23,7 @@ export interface WorkerProfilePayload {
   phone_number?: string;
   bio: string;
   skills: string;
+  photo?: File;
 }
 
 // Employer Interfaces
@@ -36,4 +37,5 @@ export interface EmployerProfileData {
 export interface EmployerProfilePayload {
   company_name: string;
   description: string;
+  logo?: File;
 }

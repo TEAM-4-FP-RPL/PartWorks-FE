@@ -7,6 +7,7 @@ export function useGetListJobs(params: {
   search?: string;
   location?: string;
   category_id?: number | string;
+  limit?: number;
 }) {
   return useQuery({
     queryKey: ['jobs', params],

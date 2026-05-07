@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Camera, Save, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -36,6 +36,7 @@ export default function EmployerEditProfile() {
 
   const avatarUrl = watch('avatar');
   const nameValue = watch('name');
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (profile) {
@@ -52,6 +53,7 @@ export default function EmployerEditProfile() {
       await updateProfile.mutateAsync({
         company_name: data.name,
         description: data.bio,
+        ...(logoFile && { logo: logoFile }),
       });
       router.push('/profile');
     } catch (error: unknown) {
@@ -111,6 +113,7 @@ export default function EmployerEditProfile() {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
+                    setLogoFile(file);
                     setValue('avatar', URL.createObjectURL(file));
                   }}
                 />
