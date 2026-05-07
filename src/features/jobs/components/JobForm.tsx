@@ -21,6 +21,15 @@ import { Navbar } from '@/components/Navbar';
 import { cn } from '@/lib/utils';
 import { HOURS } from '@/features/profile/constants/availability.constants';
 import { formatHour } from '@/features/profile/utils/formatHour';
+import { useCreateCategory } from '@/features/categories/hooks/useCreateCategory';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { useState } from 'react';
 
 interface JobFormProps {
   title: string;
@@ -36,6 +45,20 @@ export function JobForm({
   isPending,
 }: JobFormProps) {
   const router = useRouter();
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const { mutate: createCategory, isPending: isCreatingCategory } =
+    useCreateCategory();
+
+  const handleCreateCategory = () => {
+    if (!newCategoryName.trim()) return;
+    createCategory(newCategoryName.trim(), {
+      onSuccess: () => {
+        setNewCategoryName('');
+        setCategoryDialogOpen(false);
+      },
+    });
+  };
 
   const {
     register,
@@ -157,6 +180,7 @@ export function JobForm({
                           'h-11 rounded-xl w-full px-4',
                           errors.category_id && 'border-destructive'
                         )}
+                        onAddCategory={() => setCategoryDialogOpen(true)}
                       />
                     )}
                   />
@@ -423,6 +447,42 @@ export function JobForm({
           </form>
         </section>
       </div>
+      <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-sans">
+              Tambah Kategori Baru
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              Nama Kategori
+            </Label>
+            <Input
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder="Contoh: Teknologi"
+              className="h-11 rounded-xl px-4"
+              onKeyDown={(e) => e.key === 'Enter' && handleCreateCategory()}
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCategoryDialogOpen(false)}
+            >
+              Batal
+            </Button>
+            <Button
+              onClick={handleCreateCategory}
+              disabled={isCreatingCategory || !newCategoryName.trim()}
+            >
+              {isCreatingCategory ? 'Menyimpan...' : 'Simpan'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

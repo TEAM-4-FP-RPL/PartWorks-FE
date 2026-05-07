@@ -28,6 +28,7 @@ import {
 import { Pagination } from '@/components/ui/pagination';
 import { EmployerJob } from '../types';
 import Link from 'next/link';
+import { toTitleCase } from '@/lib/utils';
 
 export default function EmployerJobsContent() {
   const router = useRouter();
@@ -161,13 +162,14 @@ export default function EmployerJobsContent() {
                       >
                         <td className="py-4 px-6 font-bold">
                           <Link href={`/employer/jobs/${job.id}`}>
-                            {job.title}
+                            {toTitleCase(job.title)}
                           </Link>
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex flex-col gap-0.5 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1.5">
-                              <MapPin className="w-3.5 h-3.5" /> {job.location}
+                              <MapPin className="w-3.5 h-3.5" />{' '}
+                              {toTitleCase(job.location)}
                             </span>
                             <span className="flex items-center gap-1.5 font-medium">
                               <Banknote className="w-3.5 h-3.5" /> Rp{' '}

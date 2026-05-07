@@ -1,5 +1,7 @@
 'use client';
 
+import React from 'react';
+
 import { useGetJobApplicants } from '@/features/employer/hooks/useGetJobApplicants';
 import { useParams, useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
@@ -28,17 +30,19 @@ type Application = {
 };
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
-  sent: {
-    label: 'Terkirim',
-    className: 'bg-[var(--status-sent-bg)] text-[var(--status-sent-fg)]',
+  pending: {
+    label: 'Menunggu',
+    className: 'bg-[var(--status-pending-bg)] text-[var(--status-pending-fg)]',
   },
-  viewed: {
-    label: 'Dilihat',
-    className: 'bg-[var(--status-viewed-bg)] text-[var(--status-viewed-fg)]',
+  accepted: {
+    label: 'Diterima',
+    className:
+      'bg-[var(--status-accepted-bg)] text-[var(--status-accepted-fg)]',
   },
-  called: {
-    label: 'Dihubungi',
-    className: 'bg-[var(--status-called-bg)] text-[var(--status-called-fg)]',
+  rejected: {
+    label: 'Ditolak',
+    className:
+      'bg-[var(--status-rejected-bg)] text-[var(--status-rejected-fg)]',
   },
 };
 

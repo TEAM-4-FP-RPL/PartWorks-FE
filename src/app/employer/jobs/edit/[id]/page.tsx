@@ -52,8 +52,8 @@ export default function EditJobPage() {
         ? job.schedules.map(
             (s: { day: string; start_time: string; end_time: string }) => ({
               day: s.day || 'monday',
-              start_time: s.start_time || '',
-              end_time: s.end_time || '',
+              start_time: s.start_time?.replace(':', '.') || '',
+              end_time: s.end_time?.replace(':', '.') || '',
             })
           )
         : [{ day: 'monday', start_time: '', end_time: '' }],
