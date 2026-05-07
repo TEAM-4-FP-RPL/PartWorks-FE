@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  User,
-  PenLine,
-  ArrowLeft,
-  Loader2,
-  MoreVertical,
-  LogOut,
-} from 'lucide-react';
+import { User, PenLine, Loader2, MoreVertical, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useEmployerProfile } from '@/features/profile/hooks/useEmployerProfile';
 import { useAuthStore } from '@/store/auth';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function EmployerProfile() {
   const router = useRouter();
@@ -37,7 +31,7 @@ export default function EmployerProfile() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Spinner className="w-8 h-8 text-primary" />
       </div>
     );
   }
@@ -57,13 +51,6 @@ export default function EmployerProfile() {
           {/* Cover Photo / Banner */}
           <div className="h-40 sm:h-56 w-full rounded-t-2xl bg-(image:--gradient-hero) relative overflow-hidden">
             <div className="absolute inset-0 bg-white/10 mix-blend-overlay"></div>
-            <button
-              onClick={() => router.back()}
-              className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 p-2 sm:p-2.5 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full text-white transition-all shadow-sm"
-              title="Kembali"
-            >
-              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -77,7 +64,7 @@ export default function EmployerProfile() {
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer font-medium"
+                  className="text-destructive focus:text-destructive focus:bg-destructive/5 cursor-pointer font-medium"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Keluar

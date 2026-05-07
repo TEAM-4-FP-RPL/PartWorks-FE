@@ -3,8 +3,6 @@
 import {
   User,
   PenLine,
-  ArrowLeft,
-  Loader2,
   MoreVertical,
   LogOut,
   Upload,
@@ -23,6 +21,7 @@ import { useWorkerProfile } from '@/features/profile/hooks/useWorkerProfile';
 import { useWorkerAvailability } from '@/features/profile/hooks/useWorkerAvailability';
 import { parseBackendAvailability } from '@/features/profile/utils/availability';
 import { useAuthStore } from '@/store/auth';
+import { Spinner } from '@/components/ui/spinner';
 import UploadCVDialog from '@/features/cvs/components/UploadCVDialog';
 import UpdateCVDialog from '@/features/cvs/components/UpdateCVDialog';
 import DeleteCVDialog from '@/features/cvs/components/DeleteCVDialog';
@@ -53,7 +52,7 @@ export default function WorkerProfile() {
   if (isProfileLoading || isAvailabilityLoading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Spinner className="w-8 h-8 text-primary" />
       </div>
     );
   }
@@ -82,13 +81,6 @@ export default function WorkerProfile() {
           {/* Cover Photo / Banner */}
           <div className="h-40 sm:h-56 w-full rounded-t-2xl bg-(image:--gradient-hero) relative overflow-hidden">
             <div className="absolute inset-0 bg-white/10 mix-blend-overlay"></div>
-            <button
-              onClick={() => router.back()}
-              className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 p-2 sm:p-2.5 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full text-white transition-all shadow-sm"
-              title="Kembali"
-            >
-              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -102,7 +94,7 @@ export default function WorkerProfile() {
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer font-medium"
+                  className="text-destructive focus:text-destructive focus:bg-destructive/5 cursor-pointer font-medium"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Keluar
@@ -222,7 +214,7 @@ export default function WorkerProfile() {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setIsDeleteCVDialogOpen(true)}
-                              className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-600"
+                              className="cursor-pointer text-destructive focus:bg-destructive/5 focus:text-destructive"
                             >
                               <Trash2 className="w-4 h-4 mr-2" /> Hapus CV
                             </DropdownMenuItem>
@@ -240,7 +232,7 @@ export default function WorkerProfile() {
                           className="flex flex-col rounded-xl border bg-muted/10 overflow-hidden hover:shadow-md transition-shadow"
                         >
                           {/* PDF Preview */}
-                          <div className="w-full h-52 bg-slate-100 relative overflow-hidden">
+                          <div className="w-full h-52 bg-muted relative overflow-hidden">
                             <iframe
                               src={`${process.env.NEXT_PUBLIC_API_URL}/${cv.file_url}`}
                               className="w-full h-full pointer-events-none"
@@ -255,7 +247,7 @@ export default function WorkerProfile() {
                             />
                           </div>
                           {/* Footer */}
-                          <div className="flex items-center justify-between px-4 py-3 bg-white border-t">
+                          <div className="flex items-center justify-between px-4 py-3 bg-card border-t">
                             <p className="font-semibold text-sm text-foreground truncate">
                               {cv.category?.name || 'Kategori Tidak Diketahui'}
                             </p>

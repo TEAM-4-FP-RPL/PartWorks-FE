@@ -7,7 +7,6 @@ import { Navbar } from '@/components/Navbar';
 
 export default function ProfilePage() {
   const { role } = useAuthStore();
-  console.log('Role from auth store:', role);
 
   return (
     <>

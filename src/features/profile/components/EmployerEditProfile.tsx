@@ -1,13 +1,15 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Camera, Save, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
+import { Camera, Save, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Spinner } from '@/components/ui/spinner';
 import {
   useEmployerProfile,
   useUpdateEmployerProfile,
@@ -28,11 +30,7 @@ export default function EmployerEditProfile() {
     formState: { errors },
   } = useForm<EmployerFormValues>({
     resolver: zodResolver(employerSchema),
-    defaultValues: {
-      name: '',
-      bio: '',
-      avatar: '',
-    },
+    defaultValues: { name: '', bio: '', avatar: '' },
   });
 
   const avatarUrl = watch('avatar');
@@ -48,10 +46,6 @@ export default function EmployerEditProfile() {
     }
   }, [profile, reset]);
 
-  const handleCancel = () => {
-    router.back();
-  };
-
   const onSubmit = async (data: EmployerFormValues) => {
     try {
       await updateProfile.mutateAsync({
@@ -60,16 +54,14 @@ export default function EmployerEditProfile() {
       });
       router.push('/profile');
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      alert(errorMessage);
+      alert(error instanceof Error ? error.message : String(error));
     }
   };
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Spinner className="w-8 h-8 text-primary" />
       </div>
     );
   }
@@ -77,14 +69,6 @@ export default function EmployerEditProfile() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-muted/30 py-10 px-4 sm:px-6">
       <div className="max-w-3xl mx-auto">
-        <button
-          onClick={() => router.back()}
-          className="mb-6 flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Kembali ke Profil
-        </button>
-
         <div className="bg-card border rounded-2xl p-6 sm:p-10 shadow-sm">
           <div className="flex items-center justify-between border-b pb-6 mb-6">
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
@@ -93,42 +77,49 @@ export default function EmployerEditProfile() {
           </div>
 
           {Object.keys(errors).length > 0 && (
-            <div className="mb-6 p-4 text-sm text-destructive bg-destructive/10 rounded-lg flex items-center gap-2 border border-destructive/20 shadow-sm">
+            <div className="mb-6 p-4 text-sm text-destructive bg-destructive/10 rounded-lg flex items-center gap-2 border border-destructive/20">
               <AlertCircle className="w-5 h-5 shrink-0" />
               <span className="font-medium">
-                Terdapat kesalahan pada form. Silakan periksa kembali field yang
-                di-highlight.
+                Terdapat kesalahan pada form. Silakan periksa kembali.
               </span>
             </div>
           )}
 
           <div className="space-y-8">
-            {/* Avatar Edit Section */}
+            {/* Avatar */}
             <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-              <div className="relative group shrink-0">
+              <div className="relative shrink-0">
                 <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-background flex items-center justify-center border-4 border-muted shadow-sm">
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}
-                      alt="Avatar"
+                      alt="Logo"
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-blue-100 flex items-center justify-center text-blue-500 font-bold text-3xl">
+                    <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold text-3xl">
                       {nameValue ? nameValue.charAt(0) : '?'}
                     </div>
                   )}
                 </div>
-                <button
-                  type="button"
-                  className="absolute bottom-0 right-0 p-2.5 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-700 transition-colors"
-                  title="Ubah Foto"
-                  onClick={() =>
-                    alert('Ganti foto belum diimplementasi (Placeholder)')
-                  }
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="avatar-upload"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setValue('avatar', URL.createObjectURL(file));
+                  }}
+                />
+                <label
+                  htmlFor="avatar-upload"
+                  className="absolute bottom-0 right-0 p-2.5 bg-primary text-primary-foreground rounded-full shadow-md hover:bg-primary/90 transition-colors cursor-pointer"
+                  title="Ubah Logo"
                 >
                   <Camera className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
+                </label>
               </div>
               <div>
                 <h3 className="font-semibold text-lg text-foreground mb-1">
@@ -138,13 +129,16 @@ export default function EmployerEditProfile() {
                   Gunakan logo yang terlihat jelas. (Maks. 2MB)
                 </p>
                 <div className="flex gap-3">
-                  <Button variant="outline" size="sm">
-                    Pilih Logo
+                  <Button variant="outline" size="sm" asChild>
+                    <label htmlFor="avatar-upload" className="cursor-pointer">
+                      Pilih Logo
+                    </label>
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => setValue('avatar', '')}
                   >
                     Hapus
                   </Button>
@@ -152,8 +146,8 @@ export default function EmployerEditProfile() {
               </div>
             </div>
 
-            <div className="grid gap-8">
-              <div className="space-y-2.5">
+            <div className="grid gap-6">
+              <div className="space-y-2">
                 <Label
                   htmlFor="name"
                   className="text-sm font-semibold text-foreground/80"
@@ -164,54 +158,56 @@ export default function EmployerEditProfile() {
                   id="name"
                   placeholder="Masukkan nama perusahaan"
                   {...register('name')}
-                  className={`h-12 shadow-sm ${errors.name ? 'border-destructive focus-visible:ring-destructive' : 'focus-visible:ring-blue-500'} px-4 rounded-lg`}
+                  className={
+                    errors.name
+                      ? 'border-destructive focus-visible:ring-destructive'
+                      : ''
+                  }
                 />
                 {errors.name && (
-                  <p className="text-sm text-destructive font-medium">
+                  <p className="text-sm text-destructive">
                     {errors.name.message}
                   </p>
                 )}
               </div>
 
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 <Label
                   htmlFor="bio"
                   className="text-sm font-semibold text-foreground/80"
                 >
                   Deskripsi Perusahaan
                 </Label>
-                <textarea
+                <Textarea
                   id="bio"
                   placeholder="Ceritakan tentang visi dan profil perusahaan Anda"
                   {...register('bio')}
-                  className={`flex w-full rounded-md border bg-background px-4 py-3 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px] resize-y ${errors.bio ? 'border-destructive focus-visible:ring-destructive' : 'border-input focus-visible:ring-blue-500'}`}
+                  className={`min-h-[120px] resize-y ${errors.bio ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                 />
                 {errors.bio && (
-                  <p className="text-sm text-destructive font-medium">
+                  <p className="text-sm text-destructive">
                     {errors.bio.message}
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-8 border-t">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t">
               <Button
                 variant="outline"
-                size="lg"
-                onClick={handleCancel}
-                className="font-semibold shadow-sm w-full sm:w-auto"
+                onClick={() => router.back()}
+                className="w-full sm:w-auto"
               >
                 Batal
               </Button>
               <Button
                 type="button"
-                size="lg"
                 onClick={handleSubmit(onSubmit)}
                 disabled={updateProfile.isPending}
-                className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm w-full sm:w-auto"
+                className="gap-2 w-full sm:w-auto"
               >
                 {updateProfile.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Spinner className="w-4 h-4" />
                 ) : (
                   <Save className="w-4 h-4" />
                 )}
