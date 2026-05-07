@@ -37,7 +37,7 @@ export default function EmployerProfile() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -55,7 +55,7 @@ export default function EmployerProfile() {
       <div className="max-w-4xl mx-auto mt-8">
         <div className="shadow-xl rounded-2xl mb-10 bg-card border">
           {/* Cover Photo / Banner */}
-          <div className="h-40 sm:h-56 w-full rounded-t-2xl bg-gradient-to-r from-blue-600 to-indigo-700 relative overflow-hidden">
+          <div className="h-40 sm:h-56 w-full rounded-t-2xl bg-(image:--gradient-hero) relative overflow-hidden">
             <div className="absolute inset-0 bg-white/10 mix-blend-overlay"></div>
             <button
               onClick={() => router.back()}
@@ -106,7 +106,7 @@ export default function EmployerProfile() {
 
               <Button
                 onClick={handleEdit}
-                className="shrink-0 gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6 shadow-sm"
+                className="shrink-0 gap-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-6 shadow-sm"
               >
                 <PenLine className="w-4 h-4" />
                 Edit Profil

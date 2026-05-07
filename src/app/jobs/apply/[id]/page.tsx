@@ -63,16 +63,16 @@ export default function QuickApplyPage() {
 
   if (!job) {
     return (
-      <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center p-6 font-sans">
-        <h2 className="text-xl font-bold text-slate-800 mb-2">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 font-sans">
+        <h2 className="text-xl font-bold text-foreground mb-2">
           Lowongan Tidak Ditemukan
         </h2>
-        <p className="text-sm text-slate-500 mb-6">
+        <p className="text-sm text-muted-foreground mb-6">
           Pekerjaan yang Anda lamar tidak tersedia.
         </p>
         <Button
           onClick={() => router.back()}
-          className="bg-blue-600 text-white font-bold h-10 px-6 rounded-xl"
+          className="font-bold h-10 px-6 rounded-xl"
         >
           <ArrowLeft className="w-4 h-4 mr-2" /> KEMBALI
         </Button>
@@ -96,7 +96,7 @@ export default function QuickApplyPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50/50 font-sans">
+    <div className="min-h-screen bg-background font-sans">
       <section className="bg-primary text-primary-foreground py-12 md:py-16">
         <div className="mx-auto max-w-4xl px-4 md:px-6">
           <Button
@@ -116,38 +116,38 @@ export default function QuickApplyPage() {
       </section>
 
       <section className="mx-auto max-w-4xl px-4 py-10 md:px-6 grid gap-8 md:grid-cols-3">
-        <div className="md:col-span-2 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="md:col-span-2 bg-card p-8 rounded-2xl border border-border shadow-sm">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <h3 className="text-sm font-bold text-slate-900 tracking-widest uppercase flex items-center gap-2 mb-4">
-              <FileText className="w-4 h-4 text-blue-600" /> Form Lamaran
+            <h3 className="text-sm font-bold text-foreground tracking-widest uppercase flex items-center gap-2 mb-4">
+              <FileText className="w-4 h-4 text-primary" /> Form Lamaran
             </h3>
 
             <div className="space-y-6">
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                   Surat Lamaran (Cover Note){' '}
-                  <span className="text-red-500">*</span>
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Textarea
                   {...register('cover_note')}
                   placeholder="Tuliskan alasan mengapa Anda cocok untuk posisi ini..."
-                  className={`min-h-[120px] rounded-xl border-slate-200 focus-visible:ring-blue-600 resize-none ${errors.cover_note ? 'border-red-500 focus-visible:ring-red-500' : ''} px-4`}
+                  className={`min-h-[120px] rounded-xl resize-none ${errors.cover_note ? 'border-destructive focus-visible:ring-destructive' : ''} px-4`}
                 />
                 {errors.cover_note && (
-                  <p className="text-xs text-red-500 mt-1">
+                  <p className="text-xs text-destructive mt-1">
                     {errors.cover_note.message}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
                   <FileText className="w-3.5 h-3.5" /> Pilih CV{' '}
-                  <span className="text-red-500">*</span>
+                  <span className="text-destructive">*</span>
                 </Label>
 
                 {isProfileLoading ? (
-                  <p className="text-sm text-slate-500">Memuat CV...</p>
+                  <p className="text-sm text-muted-foreground">Memuat CV...</p>
                 ) : (
                   <div className="flex items-center gap-4">
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -155,7 +155,7 @@ export default function QuickApplyPage() {
                         <Button
                           type="button"
                           variant="outline"
-                          className={`h-11 rounded-xl ${errors.cv_id ? 'border-red-500 text-red-500 hover:text-red-600 hover:bg-red-50' : ''}`}
+                          className={`h-11 rounded-xl ${errors.cv_id ? 'border-destructive text-destructive hover:text-destructive hover:bg-destructive/5' : ''}`}
                         >
                           {selectedCv ? 'Ganti CV' : 'Pilih CV dari Profil'}
                         </Button>
@@ -180,35 +180,35 @@ export default function QuickApplyPage() {
                                   }}
                                   className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
                                     selectedCvId === cv.id
-                                      ? 'border-blue-600 bg-blue-50'
-                                      : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
+                                      ? 'border-primary bg-primary/10'
+                                      : 'border-border hover:border-primary/40 hover:bg-muted/50'
                                   }`}
                                 >
                                   <div className="flex items-center gap-3">
                                     <FileText
-                                      className={`w-5 h-5 ${selectedCvId === cv.id ? 'text-blue-600' : 'text-slate-400'}`}
+                                      className={`w-5 h-5 ${selectedCvId === cv.id ? 'text-primary' : 'text-muted-foreground'}`}
                                     />
                                     <div>
                                       <p
-                                        className={`font-semibold text-sm ${selectedCvId === cv.id ? 'text-blue-900' : 'text-slate-700'}`}
+                                        className={`font-semibold text-sm ${selectedCvId === cv.id ? 'text-foreground' : 'text-muted-foreground'}`}
                                       >
                                         {cv.category?.name || 'CV Umum'}
                                       </p>
                                     </div>
                                   </div>
                                   {selectedCvId === cv.id && (
-                                    <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                                    <CheckCircle2 className="w-5 h-5 text-primary" />
                                   )}
                                 </div>
                               ))}
                             </div>
                           ) : (
-                            <p className="text-sm text-center text-slate-500 py-4">
+                            <p className="text-sm text-center text-muted-foreground py-4">
                               Anda belum mengunggah CV. Silakan unggah CV
                               melalui halaman{' '}
                               <a
                                 href="/profile"
-                                className="text-blue-600 underline"
+                                className="text-primary underline"
                               >
                                 Profil
                               </a>
@@ -220,11 +220,11 @@ export default function QuickApplyPage() {
                     </Dialog>
                     <div className="flex-1 text-sm">
                       {selectedCv ? (
-                        <span className="font-medium text-slate-700">
+                        <span className="font-medium text-foreground">
                           {selectedCv.category?.name || 'CV Umum'}
                         </span>
                       ) : (
-                        <span className="text-slate-400 italic">
+                        <span className="text-muted-foreground italic">
                           Belum ada CV yang dipilih
                         </span>
                       )}
@@ -232,7 +232,7 @@ export default function QuickApplyPage() {
                   </div>
                 )}
                 {errors.cv_id && (
-                  <p className="text-xs text-red-500 mt-1">
+                  <p className="text-xs text-destructive mt-1">
                     {errors.cv_id.message}
                   </p>
                 )}
@@ -242,7 +242,7 @@ export default function QuickApplyPage() {
             <Button
               type="submit"
               disabled={isPending}
-              className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold gap-2 mt-4"
+              className="w-full h-12 rounded-xl font-bold gap-2 mt-4"
             >
               {isPending ? (
                 'MENGIRIM...'
@@ -256,28 +256,28 @@ export default function QuickApplyPage() {
         </div>
 
         <div className="md:col-span-1 space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5 sticky top-6">
-            <div className="p-3 bg-blue-50/75 w-fit rounded-2xl text-blue-600">
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-5 sticky top-6">
+            <div className="p-3 bg-primary/10 w-fit rounded-2xl text-primary">
               <Briefcase className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                 {job.company}
               </p>
-              <h4 className="text-base font-bold text-slate-900 mt-0.5 leading-snug">
+              <h4 className="text-base font-bold text-foreground mt-0.5 leading-snug">
                 {job.title}
               </h4>
             </div>
 
-            <div className="border-t border-slate-100 pt-5 space-y-3 text-xs text-slate-600">
+            <div className="border-t border-border pt-5 space-y-3 text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-slate-400" /> {job.location}
+                <MapPin className="w-3.5 h-3.5" /> {job.location}
               </div>
-              <div className="flex items-center gap-2 font-medium">
-                <Banknote className="w-3.5 h-3.5 text-slate-400" />
+              <div className="flex items-center gap-2 font-medium text-foreground">
+                <Banknote className="w-3.5 h-3.5 text-muted-foreground" />
                 Rp {job.salary.toLocaleString()} / {job.payType}
               </div>
-              <div className="flex items-center gap-2 text-slate-400">
+              <div className="flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5" />
                 {Array.isArray(job.shifts) ? job.shifts.join(', ') : 'Tersedia'}
               </div>

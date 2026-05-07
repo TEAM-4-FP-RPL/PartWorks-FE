@@ -38,7 +38,7 @@ export default function JobDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center p-6 font-sans">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 font-sans">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
@@ -46,16 +46,16 @@ export default function JobDetailPage() {
 
   if (isError || !job) {
     return (
-      <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center p-6 font-sans">
-        <h2 className="text-xl font-bold text-slate-800 mb-2">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 font-sans">
+        <h2 className="text-xl font-bold text-foreground mb-2">
           Lowongan Tidak Ditemukan
         </h2>
-        <p className="text-sm text-slate-500 mb-6">
+        <p className="text-sm text-muted-foreground mb-6">
           Pekerjaan yang Anda cari tidak ada atau sudah dihapus.
         </p>
         <Button
           onClick={() => router.back()}
-          className="bg-blue-600 text-white font-bold h-10 px-6 rounded-xl"
+          className="font-bold h-10 px-6 rounded-xl"
         >
           <ArrowLeft className="w-4 h-4 mr-2" /> KEMBALI
         </Button>
@@ -67,7 +67,7 @@ export default function JobDetailPage() {
     job.schedules?.map((s: WorkerAvailabilityData) => s.day) || [];
 
   return (
-    <div className="min-h-screen bg-slate-50/50 font-sans">
+    <div className="min-h-screen bg-background font-sans">
       <section className="bg-primary text-primary-foreground py-12 md:py-16">
         <div className="mx-auto max-w-5xl px-4 md:px-6">
           <Button
@@ -85,8 +85,8 @@ export default function JobDetailPage() {
                 className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-white/20 bg-white shadow-sm"
               />
             ) : (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-white/20 bg-slate-100 flex items-center justify-center shadow-sm">
-                <Building className="w-8 h-8 text-slate-400" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-white/20 bg-background/20 flex items-center justify-center shadow-sm">
+                <Building className="w-8 h-8 text-primary-foreground/60" />
               </div>
             )}
             <div>
@@ -103,39 +103,39 @@ export default function JobDetailPage() {
 
       <section className="mx-auto max-w-5xl px-4 py-10 md:px-6 grid gap-8 md:grid-cols-3">
         <div className="md:col-span-2 space-y-8">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold text-slate-900 tracking-widest uppercase flex items-center justify-between">
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
+            <h3 className="text-sm font-bold text-foreground tracking-widest uppercase flex items-center justify-between">
               Ringkasan Pekerjaan
               {job.category?.name && (
-                <Badge variant="outline" className="bg-slate-50 font-medium">
+                <Badge variant="outline" className="bg-muted font-medium">
                   {job.category.name}
                 </Badge>
               )}
             </h3>
-            <div className="grid grid-cols-2 gap-4 text-sm text-slate-600">
+            <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-50 rounded-xl text-blue-600">
+                <div className="p-2 bg-primary/10 rounded-xl text-primary">
                   <MapPin className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="block text-[10px] text-slate-400 font-bold uppercase">
+                  <span className="block text-[10px] text-muted-foreground font-bold uppercase">
                     Lokasi
                   </span>
-                  <span className="font-semibold text-slate-900 capitalize">
+                  <span className="font-semibold text-foreground capitalize">
                     {job.location} ({job.type})
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-50 rounded-xl text-blue-600">
+                <div className="p-2 bg-primary/10 rounded-xl text-primary">
                   <Banknote className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="block text-[10px] text-slate-400 font-bold uppercase">
+                  <span className="block text-[10px] text-muted-foreground font-bold uppercase">
                     Gaji
                   </span>
-                  <span className="font-semibold text-slate-900">
+                  <span className="font-semibold text-foreground">
                     Rp {job.salary?.toLocaleString('id-ID')}
                   </span>
                 </div>
@@ -143,13 +143,13 @@ export default function JobDetailPage() {
             </div>
 
             {/* Jadwal Pekerjaan (Availability Style) */}
-            <div className="mt-6 pt-6 border-t border-slate-100">
-              <h4 className="text-[10px] text-slate-400 font-bold uppercase mb-4 flex items-center justify-between gap-2">
+            <div className="mt-6 pt-6 border-t border-border">
+              <h4 className="text-[10px] text-muted-foreground font-bold uppercase mb-4 flex items-center justify-between gap-2">
                 <span className="flex items-center gap-2">
                   <Clock className="w-3.5 h-3.5" /> Jadwal Pekerjaan
                 </span>
                 {job.work_hours_per_week > 0 && (
-                  <span className="text-[10px] font-medium text-slate-500 normal-case bg-slate-100 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-medium text-muted-foreground normal-case bg-muted px-2 py-0.5 rounded-full">
                     {job.work_hours_per_week} jam / minggu
                   </span>
                 )}
@@ -167,8 +167,8 @@ export default function JobDetailPage() {
                       className={cn(
                         'text-center text-[11px] font-semibold py-1 rounded-md transition-colors',
                         selectedDays.includes(day)
-                          ? 'text-slate-900'
-                          : 'text-slate-400/50'
+                          ? 'text-foreground'
+                          : 'text-muted-foreground/40'
                       )}
                     >
                       {short}
@@ -180,8 +180,8 @@ export default function JobDetailPage() {
                       className={cn(
                         'h-10 rounded transition-all duration-200',
                         selectedDays.includes(day)
-                          ? 'bg-blue-600 opacity-90 shadow-inner'
-                          : 'bg-slate-100'
+                          ? 'bg-primary opacity-90 shadow-inner'
+                          : 'bg-muted'
                       )}
                     />
                   ))}
@@ -197,12 +197,12 @@ export default function JobDetailPage() {
                         return (
                           <div
                             key={idx}
-                            className="bg-slate-50 p-2 rounded-lg text-xs border border-slate-100 flex flex-col"
+                            className="bg-muted/50 p-2 rounded-lg text-xs border border-border flex flex-col"
                           >
-                            <span className="font-bold text-slate-700">
+                            <span className="font-bold text-foreground">
                               {dayLabel}
                             </span>
-                            <span className="text-slate-500 font-medium">
+                            <span className="text-muted-foreground font-medium">
                               {s.start_time} - {s.end_time}
                             </span>
                           </div>
@@ -211,7 +211,7 @@ export default function JobDetailPage() {
                     )}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500 italic bg-slate-50 p-4 rounded-lg text-center">
+                  <p className="text-sm text-muted-foreground italic bg-muted/50 p-4 rounded-lg text-center">
                     Jadwal belum ditentukan.
                   </p>
                 )}
@@ -219,23 +219,23 @@ export default function JobDetailPage() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold text-slate-900 tracking-widest uppercase flex items-center gap-2">
-              <FileText className="w-4 h-4 text-blue-600" /> Deskripsi Pekerjaan
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
+            <h3 className="text-sm font-bold text-foreground tracking-widest uppercase flex items-center gap-2">
+              <FileText className="w-4 h-4 text-primary" /> Deskripsi Pekerjaan
             </h3>
-            <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
+            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
               {job.description ||
                 'Tidak ada deskripsi rinci untuk pekerjaan ini saat ini.'}
             </p>
           </div>
 
           {(job.employer as EmployerProfileData)?.description && (
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-              <h3 className="text-sm font-bold text-slate-900 tracking-widest uppercase flex items-center gap-2">
-                <Building className="w-4 h-4 text-slate-600" /> Tentang
+            <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
+              <h3 className="text-sm font-bold text-foreground tracking-widest uppercase flex items-center gap-2">
+                <Building className="w-4 h-4 text-muted-foreground" /> Tentang
                 Perusahaan
               </h3>
-              <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
+              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                 {(job.employer as EmployerProfileData).description}
               </p>
             </div>
@@ -243,9 +243,9 @@ export default function JobDetailPage() {
         </div>
 
         <div className="md:col-span-1 space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6 sticky top-6">
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-6 sticky top-6">
             <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
                 Status Lowongan
               </span>
               <Badge
@@ -253,17 +253,17 @@ export default function JobDetailPage() {
                   'px-3 py-1 rounded-full text-[10px] uppercase tracking-wider block w-fit mt-1 text-center font-bold',
                   job.status === 'open'
                     ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : 'bg-slate-100 text-slate-500 border-slate-200'
+                    : 'bg-muted text-muted-foreground border-border'
                 )}
               >
                 {job.status === 'open' ? 'Buka' : 'Ditutup'}
               </Badge>
             </div>
 
-            <div className="border-t border-slate-100 pt-6">
+            <div className="border-t border-border pt-6">
               <Button
                 disabled={job.status !== 'open'}
-                className="w-full h-12 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-sm font-bold shadow-sm gap-2 disabled:bg-slate-200 disabled:text-slate-400"
+                className="w-full h-12 rounded-xl text-sm font-bold shadow-sm gap-2"
                 onClick={() => {
                   router.push(`/jobs/apply/${job.id}`);
                 }}

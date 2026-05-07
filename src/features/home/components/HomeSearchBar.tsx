@@ -30,7 +30,7 @@ export default function HomeSearchBar({
   setShift,
 }: HomeSearchBarProps) {
   return (
-    <div className="mx-auto mt-10 max-w-3xl rounded-2xl bg-white p-3 shadow-2xl z-10">
+    <div className="mx-auto mt-10 max-w-3xl rounded-2xl bg-card p-3 shadow-2xl z-10">
       <div className="grid gap-2 md:grid-cols-[1fr_auto_auto_auto] items-center">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
