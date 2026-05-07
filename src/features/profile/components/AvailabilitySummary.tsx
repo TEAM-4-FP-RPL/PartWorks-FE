@@ -33,7 +33,7 @@ export default function AvailabilitySummary({
         </p>
         <Badge
           variant="secondary"
-          className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs px-2 py-1 rounded-md"
+          className="bg-primary/10 text-primary border border-primary/20 text-xs px-2 py-1 rounded-md"
         >
           {selectedDays.length} hari · {formatHour(startHour!)}–
           {formatHour(endHour!)}
@@ -63,7 +63,7 @@ export default function AvailabilitySummary({
             key={id}
             className={cn(
               'h-10 rounded transition-all duration-200',
-              selectedDays.includes(id) ? 'bg-blue-800 opacity-80' : 'bg-muted'
+              selectedDays.includes(id) ? 'bg-primary opacity-90' : 'bg-muted'
             )}
           />
         ))}

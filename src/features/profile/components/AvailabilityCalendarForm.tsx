@@ -9,7 +9,6 @@ import {
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { useHandleAvailabilityCalendar } from '@/features/profile/hooks/useHandleAvailabilityCalendar';
 import AvailabilitySummary from '@/features/profile/components/AvailabilitySummary';
 import { formatHour } from '@/features/profile/utils/formatHour';
 import {
@@ -17,17 +16,25 @@ import {
   HOURS,
 } from '@/features/profile/constants/availability.constants';
 
-export default function AvailabilityCalendarForm() {
-  const {
-    selectedDays,
-    startHour,
-    endHour,
-    toggleDay,
-    handleStartHour,
-    handleEndHour,
-    reset,
-  } = useHandleAvailabilityCalendar();
+export interface AvailabilityCalendarFormProps {
+  selectedDays: number[];
+  startHour: number | null;
+  endHour: number | null;
+  toggleDay: (id: number) => void;
+  handleStartHour: (value: string) => void;
+  handleEndHour: (value: string) => void;
+  reset: () => void;
+}
 
+export default function AvailabilityCalendarForm({
+  selectedDays,
+  startHour,
+  endHour,
+  toggleDay,
+  handleStartHour,
+  handleEndHour,
+  reset,
+}: AvailabilityCalendarFormProps) {
   const isComplete =
     selectedDays.length > 0 && startHour !== null && endHour !== null;
 

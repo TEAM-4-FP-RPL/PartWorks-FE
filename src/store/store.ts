@@ -146,7 +146,7 @@ interface State {
   appliedJobIds: Set<string>;
 }
 
-let state: State = {
+const state: State = {
   role: 'guest',
   userName: '',
   jobs: SEED_JOBS,
@@ -159,76 +159,22 @@ const subscribe = (cb: () => void) => {
   listeners.add(cb);
   return () => listeners.delete(cb);
 };
-const emit = () => listeners.forEach((l) => l());
 const getSnapshot = () => state;
-
-function setState(updater: (s: State) => State) {
-  state = updater(state);
-  emit();
-}
 
 export function useStore() {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
 
 export const actions = {
-  login(role: Exclude<Role, 'guest'>, name: string) {
-    setState((s) => ({
-      ...s,
-      role,
-      userName: name || (role === 'employer' ? 'Employer' : 'Pencari Kerja'),
-    }));
+  addJob: (job: Job) => {
+    state.jobs = [...state.jobs, job];
   },
-  logout() {
-    setState((s) => ({ ...s, role: 'guest', userName: '' }));
+  updateJob: (updatedJob: Job) => {
+    state.jobs = state.jobs.map((job) =>
+      job.id === updatedJob.id ? updatedJob : job
+    );
   },
-  addJob(job: Job) {
-    setState((s) => ({ ...s, jobs: [job, ...s.jobs] }));
-  },
-  apply(
-    jobId: string,
-    seekerName: string,
-    skills: string[],
-    availability: string
-  ) {
-    setState((s) => {
-      if (s.appliedJobIds.has(jobId)) return s;
-      const newApp: Application = {
-        id: `a${Date.now()}`,
-        jobId,
-        seekerName,
-        seekerSkills: skills,
-        seekerAvailability: availability,
-        status: 'sent',
-        appliedAt: new Date().toISOString(),
-      };
-      const next = new Set(s.appliedJobIds);
-      next.add(jobId);
-      return {
-        ...s,
-        applications: [newApp, ...s.applications],
-        appliedJobIds: next,
-      };
-    });
-  },
-  updateAppStatus(appId: string, status: Application['status']) {
-    setState((s) => ({
-      ...s,
-      applications: s.applications.map((a) =>
-        a.id === appId ? { ...a, status } : a
-      ),
-    }));
-  },
-  updateJob(updatedJob: Job) {
-    setState((s) => ({
-      ...s,
-      jobs: s.jobs.map((j) => (j.id === updatedJob.id ? updatedJob : j)),
-    }));
-  },
-  deleteJob(id: string) {
-    setState((s) => ({
-      ...s,
-      jobs: s.jobs.filter((j) => j.id !== id),
-    }));
+  deleteJob: (id: string) => {
+    state.jobs = state.jobs.filter((job) => job.id !== id);
   },
 };

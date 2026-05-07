@@ -1,222 +1,221 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useStore } from '@/store/store';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Send, Briefcase, User, Mail, Phone, FileText, MapPin, Banknote, Clock, Upload } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { ArrowLeft, Send, FileText, CheckCircle2 } from 'lucide-react';
+import { useWorkerProfile } from '@/features/profile/hooks/useWorkerProfile';
+import { useApplyJob } from '@/features/apply job/hooks/useApplyJob';
+import { WorkerCV } from '@/features/cvs/types';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  applyJobSchema,
+  ApplyJobFormValues,
+} from '@/features/apply job/schemas';
+import { useGetJobById } from '@/features/jobs/hooks/useGetJobById';
+import { Navbar } from '@/components/Navbar';
+import { Spinner } from '@/components/ui/spinner';
+import { cn } from '@/lib/utils';
 
 export default function QuickApplyPage() {
   const router = useRouter();
   const { id } = useParams();
-  const { jobs } = useStore();
-  const [mounted, setMounted] = useState(false);
-  const job = jobs.find((j) => j.id === id);
+  const { data: job, isLoading: isJobLoading } = useGetJobById(id as string);
+  const { data: profile, isLoading: isProfileLoading } = useWorkerProfile();
+  const { mutate: applyJob, isPending } = useApplyJob();
 
-  const [form, setForm] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    experience: '',
-    resumeFile: null as File | null,
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<ApplyJobFormValues>({
+    resolver: zodResolver(applyJobSchema),
+    defaultValues: { cv_id: '', cover_note: '' },
   });
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const selectedCvId = watch('cv_id');
 
-  if (!mounted) return null;
+  if (isJobLoading)
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
+          <Spinner className="size-8 text-primary" />
+        </div>
+      </>
+    );
 
   if (!job) {
     return (
-      <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center p-6 font-sans">
-        <h2 className="text-xl font-bold text-slate-800 mb-2">Lowongan Tidak Ditemukan</h2>
-        <p className="text-sm text-slate-500 mb-6">Pekerjaan yang Anda lamar tidak tersedia.</p>
-        <Button onClick={() => router.back()} className="bg-blue-600 text-white font-bold h-10 px-6 rounded-xl">
-          <ArrowLeft className="w-4 h-4 mr-2" /> KEMBALI
-        </Button>
-      </div>
+      <>
+        <Navbar />
+        <div className="min-h-[calc(100vh-4rem)] bg-background flex flex-col items-center justify-center p-6">
+          <h2 className="text-xl font-bold text-foreground mb-2">
+            Lowongan Tidak Ditemukan
+          </h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            Pekerjaan yang Anda lamar tidak tersedia.
+          </p>
+          <Button
+            onClick={() => router.back()}
+            className="font-bold h-10 px-6 rounded-xl"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" /> Kembali
+          </Button>
+        </div>
+      </>
     );
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (file.type !== 'application/pdf') {
-        alert('Hanya format file PDF yang diperbolehkan.');
-        e.target.value = ''; 
-        setForm({ ...form, resumeFile: null });
-        return;
-      }
-      setForm({ ...form, resumeFile: file });
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.resumeFile) {
-      alert('Silakan unggah dokumen PDF lamaran Anda terlebih dahulu.');
-      return;
-    }
-    
-    alert(`Lamaran untuk posisi ${job.title} berhasil dikirim beserta dokumen ${form.resumeFile.name}!`);
-    router.push('/jobs');
+  const onSubmit = (data: ApplyJobFormValues) => {
+    applyJob(
+      { jobId: job.id, payload: data },
+      { onSuccess: () => router.push('/jobs') }
+    );
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 font-sans">
-      
-      {}
-      <section className="bg-primary text-primary-foreground py-12 md:py-16">
-        <div className="mx-auto max-w-4xl px-4 md:px-6">
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10 gap-2 mb-4 rounded-full"
-          >
-            <ArrowLeft className="w-4 h-4" /> Kembali
-          </Button>
-          <p className="text-xs font-bold uppercase tracking-wider text-primary-foreground/60">
-            {job.company}
-          </p>
-          <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl mt-1 leading-tight">
-            Lamar: {job.title}
-          </h1>
-        </div>
-      </section>
-
-      {}
-      <section className="mx-auto max-w-4xl px-4 py-10 md:px-6 grid gap-8 md:grid-cols-3">
-        
-        {}
-        <div className="md:col-span-2 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <h3 className="text-sm font-bold text-slate-900 tracking-widest uppercase flex items-center gap-2 mb-4">
-              <User className="w-4 h-4 text-blue-600" /> Informasi Pelamar
-            </h3>
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                  Nama Lengkap
-                </Label>
-                <Input 
-                  required
-                  value={form.fullName}
-                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                  placeholder="Masukkan nama lengkap Anda" 
-                  className="h-11 rounded-xl border-slate-200 focus-visible:ring-blue-600" 
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5" /> Email
-                  </Label>
-                  <Input 
-                    required
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="contoh@email.com" 
-                    className="h-11 rounded-xl border-slate-200 focus-visible:ring-blue-600" 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5" /> Nomor Telepon
-                  </Label>
-                  <Input 
-                    required
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="08123456789" 
-                    className="h-11 rounded-xl border-slate-200 focus-visible:ring-blue-600" 
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                  Pengalaman Kerja (Tahun)
-                </Label>
-                <Input 
-                  required
-                  type="number"
-                  value={form.experience}
-                  onChange={(e) => setForm({ ...form, experience: e.target.value })}
-                  placeholder="Contoh: 1" 
-                  className="h-11 rounded-xl border-slate-200 focus-visible:ring-blue-600" 
-                />
-              </div>
-
-              {}
-              <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-                  <FileText className="w-3.5 h-3.5" /> Unggah Berkas Lamaran (PDF)
-                </Label>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <Input 
-                      required
-                      type="file" 
-                      accept="application/pdf"
-                      onChange={handleFileChange}
-                      className="file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 h-11 rounded-xl border-slate-200 cursor-pointer p-1"
-                    />
-                  </div>
-                  <div className="text-[10px] text-slate-400">
-                    {form.resumeFile ? form.resumeFile.name : "Maks. 5MB"}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold gap-2 mt-4"
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-background font-sans">
+        {/* Hero */}
+        <section className="bg-primary text-primary-foreground py-8">
+          <div className="mx-auto max-w-4xl px-4 md:px-6">
+            <Button
+              variant="ghost"
+              onClick={() => router.back()}
+              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-transparent gap-2 mb-4 rounded-full -ml-6"
             >
-              <Send className="w-4 h-4" /> KIRIM LAMARAN
+              <ArrowLeft className="w-4 h-4" /> Kembali
             </Button>
-          </form>
-        </div>
-
-        {}
-        <div className="md:col-span-1 space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5 sticky top-6">
-            <div className="p-3 bg-blue-50/75 w-fit rounded-2xl text-blue-600">
-              <Briefcase className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                {job.company}
-              </p>
-              <h4 className="text-base font-bold text-slate-900 mt-0.5 leading-snug">
-                {job.title}
-              </h4>
-            </div>
-
-            <div className="border-t border-slate-100 pt-5 space-y-3 text-xs text-slate-600">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-slate-400" /> {job.location}
-              </div>
-              <div className="flex items-center gap-2 font-medium">
-                <Banknote className="w-3.5 h-3.5 text-slate-400" /> 
-                Rp {job.payRate.toLocaleString()} / {job.payType}
-              </div>
-              <div className="flex items-center gap-2 text-slate-400">
-                <Clock className="w-3.5 h-3.5" /> 
-                {Array.isArray(job.shifts) ? job.shifts.join(', ') : 'Tersedia'}
-              </div>
-            </div>
+            <p className="text-xs font-bold uppercase tracking-wider text-primary-foreground/60">
+              {job.employer?.company_name}
+            </p>
+            <h1 className="text-2xl font-extrabold tracking-tight md:text-3xl mt-1 leading-tight">
+              Lamar Pekerjaan {job.title}
+            </h1>
           </div>
-        </div>
+        </section>
 
-      </section>
-    </div>
+        <section className="mx-auto max-w-4xl px-4 py-8 md:px-6">
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+              <h3 className="text-sm font-bold text-foreground tracking-widest uppercase flex items-center gap-2">
+                <FileText className="w-4 h-4 text-primary" /> Form Lamaran
+              </h3>
+
+              {/* Cover note */}
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  Surat Lamaran (Cover Note){' '}
+                  <span className="text-destructive">*</span>
+                </Label>
+                <Textarea
+                  {...register('cover_note')}
+                  placeholder="Tuliskan alasan mengapa Anda cocok untuk posisi ini..."
+                  className={cn(
+                    'min-h-[120px] rounded-xl resize-none px-4',
+                    errors.cover_note &&
+                      'border-destructive focus-visible:ring-destructive'
+                  )}
+                />
+                {errors.cover_note && (
+                  <p className="text-xs text-destructive">
+                    {errors.cover_note.message}
+                  </p>
+                )}
+              </div>
+
+              {/* CV selection — inline cards, no dialog */}
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5" /> Pilih CV{' '}
+                  <span className="text-destructive">*</span>
+                </Label>
+
+                {isProfileLoading ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Spinner className="size-4 text-primary" /> Memuat CV...
+                  </div>
+                ) : profile?.cvs?.length > 0 ? (
+                  <div className="grid gap-2">
+                    {profile.cvs.map((cv: WorkerCV) => (
+                      <button
+                        key={cv.id}
+                        type="button"
+                        onClick={() =>
+                          setValue('cv_id', cv.id, { shouldValidate: true })
+                        }
+                        className={cn(
+                          'flex items-center justify-between p-4 rounded-xl border text-left transition-all',
+                          selectedCvId === cv.id
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/40 hover:bg-muted/50'
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <FileText
+                            className={cn(
+                              'w-4 h-4',
+                              selectedCvId === cv.id
+                                ? 'text-primary'
+                                : 'text-muted-foreground'
+                            )}
+                          />
+                          <span
+                            className={cn(
+                              'text-sm font-semibold',
+                              selectedCvId === cv.id
+                                ? 'text-foreground'
+                                : 'text-muted-foreground'
+                            )}
+                          >
+                            {cv.category?.name || 'CV Umum'}
+                          </span>
+                        </div>
+                        {selectedCvId === cv.id && (
+                          <CheckCircle2 className="w-4 h-4 text-primary" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">
+                    Belum ada CV. Unggah melalui halaman{' '}
+                    <a href="/profile" className="text-primary underline">
+                      Profil
+                    </a>
+                    .
+                  </p>
+                )}
+                {errors.cv_id && (
+                  <p className="text-xs text-destructive">
+                    {errors.cv_id.message}
+                  </p>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="w-full h-11 rounded-xl font-bold gap-2"
+              >
+                {isPending ? (
+                  'Mengirim...'
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" /> Kirim Lamaran
+                  </>
+                )}
+              </Button>
+            </form>
+          </div>
+        </section>
+      </div>
+    </>
   );
 }

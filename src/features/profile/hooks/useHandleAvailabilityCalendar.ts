@@ -1,9 +1,19 @@
 import { useState } from 'react';
 
-export function useHandleAvailabilityCalendar() {
-  const [selectedDays, setSelectedDays] = useState<number[]>([]);
-  const [startHour, setStartHour] = useState<number | null>(null);
-  const [endHour, setEndHour] = useState<number | null>(null);
+interface UseHandleAvailabilityCalendarProps {
+  initialDays?: number[];
+  initialStartHour?: number | null;
+  initialEndHour?: number | null;
+}
+
+export function useHandleAvailabilityCalendar({
+  initialDays = [],
+  initialStartHour = null,
+  initialEndHour = null,
+}: UseHandleAvailabilityCalendarProps = {}) {
+  const [selectedDays, setSelectedDays] = useState<number[]>(initialDays);
+  const [startHour, setStartHour] = useState<number | null>(initialStartHour);
+  const [endHour, setEndHour] = useState<number | null>(initialEndHour);
 
   const toggleDay = (id: number) => {
     setSelectedDays((prev) =>
