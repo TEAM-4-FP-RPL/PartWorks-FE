@@ -6,8 +6,13 @@ export async function createJob(payload: JobFormValues) {
   return data;
 }
 
-export async function updateJob(id: string, payload: JobFormValues) {
+export async function updateJob(id: string, payload: Partial<JobFormValues>) {
   const { data } = await api.patch(`/jobs/${id}`, payload);
+  return data;
+}
+
+export async function updateJobStatus(id: string, status: 'open' | 'closed') {
+  const { data } = await api.patch(`/jobs/${id}`, { status });
   return data;
 }
 
@@ -36,7 +41,7 @@ export async function getJobs(params: {
   return data;
 }
 
-export async function getJobById(id: string) {
+export async function getJobById(id?: string) {
   const { data } = await api.get(`/jobs/${id}`);
   return data.data;
 }
