@@ -41,7 +41,7 @@ export async function getJobs(params: {
   return data;
 }
 
-export async function getJobById(id: string) {
+export async function getJobById(id?: string) {
   const { data } = await api.get(`/jobs/${id}`);
   return data.data;
 }
