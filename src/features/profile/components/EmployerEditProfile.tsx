@@ -27,6 +27,7 @@ export default function EmployerEditProfile() {
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<EmployerFormValues>({
     resolver: zodResolver(employerSchema),
