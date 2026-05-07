@@ -2,25 +2,13 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  MapPin,
-  Banknote,
-  Clock,
-  ArrowLeft,
-  FileText,
-  User,
-  Building,
-  CalendarDays,
-} from 'lucide-react';
+import { MapPin, Banknote, ArrowLeft, User, Building } from 'lucide-react';
 import { useGetJobById } from '@/features/jobs/hooks/useGetJobById';
 import { cn, toTitleCase } from '@/lib/utils';
 import { Navbar } from '@/components/Navbar';
-import {
-  EmployerProfileData,
-  WorkerAvailabilityData,
-} from '@/features/profile/types';
+import { WorkerAvailabilityData } from '@/features/profile/types';
 import AvailabilitySummary from '@/features/profile/components/AvailabilitySummary';
+import { Spinner } from '@/components/ui/spinner';
 
 const DAYS_MAP: Record<string, string> = {
   monday: 'Senin',
@@ -43,7 +31,7 @@ export default function JobDetailPage() {
       <>
         <Navbar />
         <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <Spinner color="blue" className="w-8 h-8" />
         </div>
       </>
     );
@@ -83,7 +71,7 @@ export default function JobDetailPage() {
             <Button
               variant="ghost"
               onClick={() => router.back()}
-              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10 gap-2 mb-4 rounded-full -ml-2"
+              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-transparent gap-2 mb-4 rounded-full -ml-6"
             >
               <ArrowLeft className="w-4 h-4" /> Kembali
             </Button>

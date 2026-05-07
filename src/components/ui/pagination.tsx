@@ -25,7 +25,7 @@ export function Pagination({
       >
         <ChevronLeft className="w-4 h-4 mr-1" /> Sebelumnya
       </Button>
-      <div className="text-sm font-medium text-slate-500 mx-4">
+      <div className="text-sm font-medium text-muted-foreground mx-4">
         Halaman {currentPage} dari {totalPages}
       </div>
       <Button

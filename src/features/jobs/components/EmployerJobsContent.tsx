@@ -82,18 +82,17 @@ export default function EmployerJobsContent() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-slate-50/50 font-sans">
+      <div className="min-h-screen bg-background font-sans">
         <section className="mx-auto max-w-7xl px-4 py-12 md:px-6 space-y-8">
           <div className="flex items-end justify-between">
             <div>
               <h2 className="text-2xl font-bold tracking-tight md:text-3xl flex items-center gap-2">
-                <Briefcase className="w-6 h-6 text-primary" /> Daftar Lowongan
+                Daftar Lowongan
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Pilihan lowongan yang telah Anda pasang.
               </p>
             </div>
-
             <Button
               onClick={() => router.push('/employer/jobs/create')}
               className="h-11 px-6 rounded-md font-medium gap-2"
@@ -102,6 +101,7 @@ export default function EmployerJobsContent() {
             </Button>
           </div>
 
+          {/* Status tabs */}
           <div className="inline-flex rounded-lg border border-border bg-muted/40 p-1 gap-1">
             {(['open', 'closed'] as const).map((s) => (
               <button
@@ -109,7 +109,7 @@ export default function EmployerJobsContent() {
                 onClick={() => router.push(`/employer/jobs?status=${s}&page=1`)}
                 className={`px-5 py-1.5 rounded-md text-sm font-semibold capitalize transition-colors ${
                   status === s
-                    ? 'bg-white shadow-sm text-foreground'
+                    ? 'bg-background shadow-sm text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -123,7 +123,6 @@ export default function EmployerJobsContent() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-muted/50 border-b border-border text-xs font-bold tracking-wider uppercase text-muted-foreground">
-                    <th className="py-4 px-6">Perusahaan</th>
                     <th className="py-4 px-6">Judul Pekerjaan</th>
                     <th className="py-4 px-6">Lokasi & Gaji</th>
                     <th className="py-4 px-6">Kategori</th>
@@ -135,7 +134,7 @@ export default function EmployerJobsContent() {
                   {isLoading && (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={5}
                         className="py-12 text-center text-muted-foreground"
                       >
                         <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
@@ -146,8 +145,8 @@ export default function EmployerJobsContent() {
                   {!isLoading && isError && (
                     <tr>
                       <td
-                        colSpan={6}
-                        className="py-12 text-center text-red-500 font-medium"
+                        colSpan={5}
+                        className="py-12 text-center text-destructive font-medium"
                       >
                         Gagal memuat lowongan pekerjaan.
                       </td>
@@ -160,9 +159,6 @@ export default function EmployerJobsContent() {
                         key={job.id}
                         className="hover:bg-muted/30 transition-colors"
                       >
-                        <td className="py-4 px-6 font-semibold">
-                          {job.employer?.company_name || '-'}
-                        </td>
                         <td className="py-4 px-6 font-bold">
                           <Link href={`/employer/jobs/${job.id}`}>
                             {job.title}
@@ -171,12 +167,11 @@ export default function EmployerJobsContent() {
                         <td className="py-4 px-6">
                           <div className="flex flex-col gap-0.5 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1.5">
-                              <MapPin className="w-3.5 h-3.5 text-muted-foreground/70" />{' '}
-                              {job.location}
+                              <MapPin className="w-3.5 h-3.5" /> {job.location}
                             </span>
                             <span className="flex items-center gap-1.5 font-medium">
-                              <Banknote className="w-3.5 h-3.5 text-muted-foreground/70" />{' '}
-                              Rp {job.salary.toLocaleString()}
+                              <Banknote className="w-3.5 h-3.5" /> Rp{' '}
+                              {job.salary.toLocaleString()}
                             </span>
                           </div>
                         </td>
@@ -185,9 +180,14 @@ export default function EmployerJobsContent() {
                         </td>
                         <td className="py-4 px-6">
                           <Badge
-                            className={`${job.status === 'open' ? 'bg-green-500 text-white border-emerald-200' : 'bg-red-500 text-white border-slate-200'} text-[10px] px-2.5 py-0.5 rounded uppercase tracking-wider`}
+                            variant="secondary"
+                            className={
+                              job.status === 'open'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] px-2.5 py-0.5 rounded uppercase tracking-wider'
+                                : 'bg-red-50 text-red-700 border-red-200 text-[10px] px-2.5 py-0.5 rounded uppercase tracking-wider'
+                            }
                           >
-                            {job.status}
+                            {job.status === 'open' ? 'Buka' : 'Tutup'}
                           </Badge>
                         </td>
                         <td className="py-4 px-6 text-right">
@@ -202,25 +202,12 @@ export default function EmployerJobsContent() {
                             >
                               <Edit className="w-3.5 h-3.5 mr-1.5" /> Edit
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 text-destructive border-destructive/20 hover:bg-destructive/5 text-xs font-bold rounded-md"
-                              onClick={() => handleDelete(job.id)}
-                              disabled={deleteJobMutation.isPending}
-                            >
-                              {deleteJobMutation.isPending ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              ) : (
-                                <Trash2 className="w-3.5 h-3.5" />
-                              )}
-                            </Button>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="h-8 w-8 p-0 border-0"
+                                  className="h-8 w-8 p-0"
                                 >
                                   <MoreVertical className="w-3.5 h-3.5" />
                                 </Button>
@@ -242,6 +229,13 @@ export default function EmployerJobsContent() {
                                 >
                                   Tandai sebagai Closed
                                 </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  className="text-destructive focus:text-destructive focus:bg-destructive/5"
+                                  onClick={() => handleDelete(job.id)}
+                                  disabled={deleteJobMutation.isPending}
+                                >
+                                  Hapus
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
@@ -252,7 +246,7 @@ export default function EmployerJobsContent() {
                   {!isLoading && !isError && jobs.length === 0 && (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={5}
                         className="py-12 text-center text-sm text-muted-foreground italic"
                       >
                         Tidak ada data lowongan yang ditemukan.

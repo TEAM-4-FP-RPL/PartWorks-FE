@@ -4,16 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import {
-  ArrowLeft,
-  Send,
-  FileText,
-  MapPin,
-  Banknote,
-  CheckCircle2,
-  Building,
-} from 'lucide-react';
+import { ArrowLeft, Send, FileText, CheckCircle2 } from 'lucide-react';
 import { useWorkerProfile } from '@/features/profile/hooks/useWorkerProfile';
 import { useApplyJob } from '@/features/apply job/hooks/useApplyJob';
 import { WorkerCV } from '@/features/cvs/types';
@@ -25,7 +16,8 @@ import {
 } from '@/features/apply job/schemas';
 import { useGetJobById } from '@/features/jobs/hooks/useGetJobById';
 import { Navbar } from '@/components/Navbar';
-import { cn, toTitleCase } from '@/lib/utils';
+import { Spinner } from '@/components/ui/spinner';
+import { cn } from '@/lib/utils';
 
 export default function QuickApplyPage() {
   const router = useRouter();
@@ -47,7 +39,15 @@ export default function QuickApplyPage() {
 
   const selectedCvId = watch('cv_id');
 
-  if (isJobLoading) return null;
+  if (isJobLoading)
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
+          <Spinner className="size-8 text-primary" />
+        </div>
+      </>
+    );
 
   if (!job) {
     return (
@@ -88,7 +88,7 @@ export default function QuickApplyPage() {
             <Button
               variant="ghost"
               onClick={() => router.back()}
-              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-white/10 gap-2 mb-4 rounded-full -ml-6"
+              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-transparent gap-2 mb-4 rounded-full -ml-6"
             >
               <ArrowLeft className="w-4 h-4" /> Kembali
             </Button>
@@ -138,7 +138,9 @@ export default function QuickApplyPage() {
                 </Label>
 
                 {isProfileLoading ? (
-                  <p className="text-sm text-muted-foreground">Memuat CV...</p>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Spinner className="size-4 text-primary" /> Memuat CV...
+                  </div>
                 ) : profile?.cvs?.length > 0 ? (
                   <div className="grid gap-2">
                     {profile.cvs.map((cv: WorkerCV) => (

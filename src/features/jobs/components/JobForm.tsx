@@ -17,6 +17,10 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { JobFormValues, jobSchema } from '../schemas';
 import { useRouter } from 'next/navigation';
+import { Navbar } from '@/components/Navbar';
+import { cn } from '@/lib/utils';
+import { HOURS } from '@/features/profile/constants/availability.constants';
+import { formatHour } from '@/features/profile/utils/formatHour';
 
 interface JobFormProps {
   title: string;
@@ -59,64 +63,78 @@ export function JobForm({
   });
 
   return (
-    <div className="min-h-screen bg-slate-50/50 py-12 px-4 font-sans">
-      <div className="max-w-2xl mx-auto space-y-6">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => router.back()}
-          className="rounded-full gap-2 text-slate-500 hover:bg-slate-100"
-        >
-          <ArrowLeft className="w-4 h-4" /> KEMBALI KE DASHBOARD
-        </Button>
-
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="rounded-4xl border-2 border-slate-100 shadow-none overflow-hidden bg-white"
-        >
-          <div className="p-8 border-b border-slate-50 flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-2xl">
-              <Briefcase className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-                {title}
-              </h2>
-              <p className="text-slate-500 text-sm">
-                Isi detail pekerjaan untuk mulai mencari kandidat.
-              </p>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-background font-sans">
+        {/* Hero */}
+        <section className="bg-primary text-primary-foreground py-8">
+          <div className="mx-auto max-w-2xl px-4 md:px-6">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => router.back()}
+              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-transparent gap-2 mb-4 rounded-full -ml-6"
+            >
+              <ArrowLeft className="w-4 h-4" /> Kembali
+            </Button>
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-white/10 rounded-xl">
+                <Briefcase className="w-5 h-5" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-extrabold tracking-tight">
+                  {title}
+                </h1>
+                <p className="text-sm text-primary-foreground/70">
+                  Isi detail pekerjaan untuk mulai mencari kandidat.
+                </p>
+              </div>
             </div>
           </div>
+        </section>
 
-          <div className="p-8 space-y-6 bg-white">
-            <div className="space-y-4">
+        <section className="mx-auto max-w-2xl px-4 py-8 md:px-6">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="bg-card rounded-2xl border border-border shadow-sm divide-y divide-border"
+          >
+            {/* Basic info */}
+            <div className="p-6 space-y-4">
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                   Judul Lowongan
                 </Label>
                 <Input
                   {...register('title')}
                   placeholder="Contoh: Barista Part-time"
-                  className={`h-12 rounded-xl border-slate-200 ${errors.title ? 'border-red-500 focus-visible:ring-red-500' : ''} px-4`}
+                  className={cn(
+                    'h-11 rounded-xl px-4',
+                    errors.title &&
+                      'border-destructive focus-visible:ring-destructive'
+                  )}
                 />
                 {errors.title && (
-                  <p className="text-xs text-red-500 font-medium">
+                  <p className="text-xs text-destructive">
                     {errors.title.message}
                   </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                   Deskripsi Lowongan
                 </Label>
                 <Textarea
                   {...register('description')}
                   placeholder="Deskripsikan pekerjaan, kriteria, dan tanggung jawab..."
-                  className={`min-h-[100px] rounded-xl border-slate-200 bg-white ${errors.description ? 'border-red-500 focus-visible:ring-red-500' : ''} px-4`}
+                  className={cn(
+                    'min-h-[100px] rounded-xl resize-none px-4',
+                    errors.description &&
+                      'border-destructive focus-visible:ring-destructive'
+                  )}
                 />
                 {errors.description && (
-                  <p className="text-xs text-red-500 font-medium">
+                  <p className="text-xs text-destructive">
                     {errors.description.message}
                   </p>
                 )}
@@ -124,7 +142,7 @@ export function JobForm({
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                     Kategori
                   </Label>
                   <Controller
@@ -135,27 +153,34 @@ export function JobForm({
                         value={field.value.toString()}
                         onChange={(e) => field.onChange(Number(e))}
                         placeholder="Pilih Kategori"
-                        className={`h-12 rounded-xl border-slate-200 w-full ${errors.category_id ? 'border-red-500 focus:ring-red-500' : ''} px-4`}
+                        className={cn(
+                          'h-11 rounded-xl w-full px-4',
+                          errors.category_id && 'border-destructive'
+                        )}
                       />
                     )}
                   />
                   {errors.category_id && (
-                    <p className="text-xs text-red-500 font-medium">
+                    <p className="text-xs text-destructive">
                       {errors.category_id.message}
                     </p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                     Lokasi
                   </Label>
                   <Input
                     {...register('location')}
                     placeholder="Contoh: Jakarta Pusat"
-                    className={`h-12 rounded-xl border-slate-200 ${errors.location ? 'border-red-500 focus-visible:ring-red-500' : ''} px-4`}
+                    className={cn(
+                      'h-11 rounded-xl px-4',
+                      errors.location &&
+                        'border-destructive focus-visible:ring-destructive'
+                    )}
                   />
                   {errors.location && (
-                    <p className="text-xs text-red-500 font-medium">
+                    <p className="text-xs text-destructive">
                       {errors.location.message}
                     </p>
                   )}
@@ -164,39 +189,42 @@ export function JobForm({
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
-                    Gaji / Upah (hanya angka)
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    Gaji / Upah
                   </Label>
                   <Controller
                     control={control}
                     name="salary"
-                    render={({ field: { onChange, value, ref } }) => {
-                      const formattedValue = value
-                        ? new Intl.NumberFormat('id-ID').format(value)
-                        : '';
-                      return (
-                        <Input
-                          type="text"
-                          ref={ref}
-                          value={formattedValue}
-                          onChange={(e) => {
-                            const rawValue = e.target.value.replace(/\D/g, '');
-                            onChange(rawValue ? Number(rawValue) : 0);
-                          }}
-                          placeholder="Contoh: 3.000.000"
-                          className={`h-12 rounded-xl border-slate-200 ${errors.salary ? 'border-red-500 focus-visible:ring-red-500' : ''} px-4`}
-                        />
-                      );
-                    }}
+                    render={({ field: { onChange, value, ref } }) => (
+                      <Input
+                        type="text"
+                        ref={ref}
+                        value={
+                          value
+                            ? new Intl.NumberFormat('id-ID').format(value)
+                            : ''
+                        }
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, '');
+                          onChange(raw ? Number(raw) : 0);
+                        }}
+                        placeholder="Contoh: 3.000.000"
+                        className={cn(
+                          'h-11 rounded-xl px-4',
+                          errors.salary &&
+                            'border-destructive focus-visible:ring-destructive'
+                        )}
+                      />
+                    )}
                   />
                   {errors.salary && (
-                    <p className="text-xs text-red-500 font-medium">
+                    <p className="text-xs text-destructive">
                       {errors.salary.message}
                     </p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                     Tipe Pekerjaan
                   </Label>
                   <Controller
@@ -208,9 +236,12 @@ export function JobForm({
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger
-                          className={`w-full h-12 rounded-xl border-slate-200 bg-white ${errors.type ? 'border-red-500' : ''} px-4`}
+                          className={cn(
+                            'w-full h-11 rounded-xl px-4',
+                            errors.type && 'border-destructive'
+                          )}
                         >
-                          <SelectValue placeholder="Pilih Tipe Pekerjaan" />
+                          <SelectValue placeholder="Pilih Tipe" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Onsite">On-Site</SelectItem>
@@ -221,136 +252,177 @@ export function JobForm({
                     )}
                   />
                   {errors.type && (
-                    <p className="text-xs text-red-500 font-medium">
+                    <p className="text-xs text-destructive">
                       {errors.type.message}
                     </p>
                   )}
                 </div>
               </div>
-
-              <div className="space-y-4">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
-                  Jadwal Kerja
-                </Label>
-
-                {fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="flex gap-3 items-start bg-slate-50 p-4 rounded-xl border border-slate-100 relative"
-                  >
-                    <div className="space-y-2 flex-1">
-                      <Label className="text-xs font-semibold text-slate-500">
-                        Hari
-                      </Label>
-                      <Controller
-                        control={control}
-                        name={`schedules.${index}.day`}
-                        render={({ field: { value, onChange } }) => (
-                          <Select value={value} onValueChange={onChange}>
-                            <SelectTrigger
-                              className={`w-full h-10 rounded-lg border-slate-200 bg-white ${errors.schedules?.[index]?.day ? 'border-red-500' : ''} px-4`}
-                            >
-                              <SelectValue placeholder="Pilih Hari" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="monday">Senin</SelectItem>
-                              <SelectItem value="tuesday">Selasa</SelectItem>
-                              <SelectItem value="wednesday">Rabu</SelectItem>
-                              <SelectItem value="thursday">Kamis</SelectItem>
-                              <SelectItem value="friday">Jumat</SelectItem>
-                              <SelectItem value="saturday">Sabtu</SelectItem>
-                              <SelectItem value="sunday">Minggu</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                      {errors.schedules?.[index]?.day && (
-                        <p className="text-xs text-red-500">
-                          {errors.schedules[index]?.day?.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2 flex-1">
-                      <Label className="text-xs font-semibold text-slate-500">
-                        Mulai
-                      </Label>
-                      <Input
-                        type="time"
-                        {...register(`schedules.${index}.start_time`)}
-                        className={`h-10 rounded-lg border-slate-200 bg-white ${errors.schedules?.[index]?.start_time ? 'border-red-500' : ''} px-4`}
-                      />
-                      {errors.schedules?.[index]?.start_time && (
-                        <p className="text-xs text-red-500">
-                          {errors.schedules[index]?.start_time?.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2 flex-1">
-                      <Label className="text-xs font-semibold text-slate-500">
-                        Selesai
-                      </Label>
-                      <Input
-                        type="time"
-                        {...register(`schedules.${index}.end_time`)}
-                        className={`h-10 rounded-lg border-slate-200 bg-white ${errors.schedules?.[index]?.end_time ? 'border-red-500' : ''} px-4`}
-                      />
-                      {errors.schedules?.[index]?.end_time && (
-                        <p className="text-xs text-red-500">
-                          {errors.schedules[index]?.end_time?.message}
-                        </p>
-                      )}
-                    </div>
-
-                    {fields.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-10 w-10 mt-7 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg shrink-0"
-                        onClick={() => remove(index)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full h-12 rounded-xl border-dashed border-2 border-slate-200 text-blue-600 font-bold hover:bg-blue-50/50 gap-2"
-                  onClick={() =>
-                    append({ day: 'monday', start_time: '', end_time: '' })
-                  }
-                >
-                  <Plus className="w-4 h-4" /> TAMBAH JADWAL
-                </Button>
-              </div>
             </div>
 
-            <div className="flex gap-4 pt-6">
+            {/* Schedules */}
+            <div className="p-6 space-y-3">
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Jadwal Kerja
+              </Label>
+
+              {fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="flex gap-3 items-start bg-muted/40 p-4 rounded-xl border border-border"
+                >
+                  <div className="space-y-1.5 flex-1">
+                    <Label className="text-xs font-semibold text-muted-foreground">
+                      Hari
+                    </Label>
+                    <Controller
+                      control={control}
+                      name={`schedules.${index}.day`}
+                      render={({ field: { value, onChange } }) => (
+                        <Select value={value} onValueChange={onChange}>
+                          <SelectTrigger
+                            className={cn(
+                              'w-full h-10 rounded-lg px-4',
+                              errors.schedules?.[index]?.day &&
+                                'border-destructive'
+                            )}
+                          >
+                            <SelectValue placeholder="Pilih Hari" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[
+                              ['monday', 'Senin'],
+                              ['tuesday', 'Selasa'],
+                              ['wednesday', 'Rabu'],
+                              ['thursday', 'Kamis'],
+                              ['friday', 'Jumat'],
+                              ['saturday', 'Sabtu'],
+                              ['sunday', 'Minggu'],
+                            ].map(([v, l]) => (
+                              <SelectItem key={v} value={v}>
+                                {l}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5 flex-1">
+                    <Label className="text-xs font-semibold text-muted-foreground">
+                      Mulai
+                    </Label>
+                    <Controller
+                      control={control}
+                      name={`schedules.${index}.start_time`}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger
+                            className={cn(
+                              'w-full h-10 rounded-lg px-4',
+                              errors.schedules?.[index]?.start_time &&
+                                'border-destructive'
+                            )}
+                          >
+                            <SelectValue placeholder="00.00" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {HOURS.map((h) => (
+                              <SelectItem key={h} value={formatHour(h)}>
+                                {formatHour(h)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5 flex-1">
+                    <Label className="text-xs font-semibold text-muted-foreground">
+                      Selesai
+                    </Label>
+                    <Controller
+                      control={control}
+                      name={`schedules.${index}.end_time`}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger
+                            className={cn(
+                              'w-full h-10 rounded-lg px-4',
+                              errors.schedules?.[index]?.end_time &&
+                                'border-destructive'
+                            )}
+                          >
+                            <SelectValue placeholder="00.00" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {HOURS.map((h) => (
+                              <SelectItem key={h} value={formatHour(h)}>
+                                {formatHour(h)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+
+                  {fields.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 mt-6 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg shrink-0"
+                      onClick={() => remove(index)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full h-10 rounded-xl border-dashed gap-2 text-muted-foreground hover:text-foreground"
+                onClick={() =>
+                  append({ day: 'monday', start_time: '', end_time: '' })
+                }
+              >
+                <Plus className="w-4 h-4" /> Tambah Jadwal
+              </Button>
+            </div>
+
+            {/* Actions */}
+            <div className="p-6 flex gap-3">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
-                className="flex-1 h-12 rounded-xl font-bold border-slate-200"
+                className="flex-1 h-11 rounded-xl"
               >
-                BATAL
+                Batal
               </Button>
               <Button
                 type="submit"
-                className="flex-1 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold gap-2 disabled:opacity-50"
+                className="flex-1 h-11 rounded-xl font-bold gap-2"
                 disabled={isPending}
               >
                 <Save className="w-4 h-4" />{' '}
-                {isPending ? 'MENYIMPAN...' : 'SIMPAN LOWONGAN'}
+                {isPending ? 'Menyimpan...' : 'Simpan Lowongan'}
               </Button>
             </div>
-          </div>
-        </form>
+          </form>
+        </section>
       </div>
-    </div>
+    </>
   );
 }
