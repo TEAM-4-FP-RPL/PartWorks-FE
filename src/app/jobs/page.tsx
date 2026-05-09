@@ -44,6 +44,7 @@ export default function JobListPage() {
   const debouncedLocation = useDebounce(locationQuery, 500);
   const [categoryId, setCategoryId] = useState<string>('all');
   const [jobType, setJobType] = useState<string>('all');
+  const [sort, setSort] = useState<string>('none');
 
   const { data: categoriesData } = useCategories();
   const categories = categoriesData?.data || [];
@@ -60,6 +61,7 @@ export default function JobListPage() {
     location: debouncedLocation || undefined,
     category_id: categoryId !== 'all' ? categoryId : undefined,
     type: jobType !== 'all' ? jobType : undefined,
+    sort: sort !== 'none' ? sort : undefined,
     limit: 12,
   });
 
@@ -84,12 +86,14 @@ export default function JobListPage() {
   const activeFilterCount =
     (categoryId !== 'all' ? 1 : 0) +
     (jobType !== 'all' ? 1 : 0) +
-    (locationQuery ? 1 : 0);
+    (locationQuery ? 1 : 0) +
+    (sort !== 'none' ? 1 : 0);
 
   const handleResetFilters = () => {
     setLocationQuery('');
     setCategoryId('all');
     setJobType('all');
+    setSort('none');
   };
 
   return (
@@ -200,6 +204,24 @@ export default function JobListPage() {
                       <SelectItem value="onsite">Onsite</SelectItem>
                       <SelectItem value="remote">Remote</SelectItem>
                       <SelectItem value="hybrid">Hybrid</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium text-muted-foreground">
+                    Urutkan Gaji
+                  </Label>
+                  <Select value={sort} onValueChange={setSort}>
+                    <SelectTrigger className="h-9 text-sm w-full">
+                      <SelectValue placeholder="Default" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Default</SelectItem>
+                      <SelectItem value="salary_asc">Gaji Terendah</SelectItem>
+                      <SelectItem value="salary_desc">
+                        Gaji Tertinggi
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -37,6 +37,7 @@ export async function getJobs(params: {
   location?: string;
   category_id?: number | string;
   limit?: number;
+  sort?: string;
 }) {
   const { data } = await api.get('/jobs', { params });
   return data;

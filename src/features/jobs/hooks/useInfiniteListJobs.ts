@@ -7,6 +7,7 @@ export function useInfiniteListJobs(params: {
   location?: string;
   category_id?: number | string;
   limit?: number;
+  sort?: string;
 }) {
   return useInfiniteQuery({
     queryKey: ['jobs-infinite', params],
