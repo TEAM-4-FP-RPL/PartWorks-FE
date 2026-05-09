@@ -3,10 +3,11 @@ import { getEmployerProfile, updateEmployerProfile } from '../api';
 import { EmployerProfilePayload } from '../types';
 import { toast } from 'sonner';
 
-export const useEmployerProfile = () => {
+export const useEmployerProfile = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ['employerProfile'],
     queryFn: getEmployerProfile,
+    enabled: options?.enabled ?? true,
   });
 };
 

@@ -19,7 +19,7 @@ export function useUpdateApplicationStatus(jobId?: string) {
     }: {
       id: string;
       status: 'accepted' | 'rejected';
-    }) => updateApplicationStatus(id, status),
+    }) => updateApplicationStatus(jobId!, id, status),
     onSuccess: (_, { status }) => {
       queryClient.invalidateQueries({ queryKey: ['job-applicants', jobId] });
       toast.success(

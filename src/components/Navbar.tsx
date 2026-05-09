@@ -12,8 +12,12 @@ export function Navbar() {
   const { role, user } = useAuthStore();
   const [open, setOpen] = useState(false);
 
-  const { data: workerProfile } = useWorkerProfile();
-  const { data: employerProfile } = useEmployerProfile();
+  const { data: workerProfile } = useWorkerProfile({
+    enabled: role === 'worker',
+  });
+  const { data: employerProfile } = useEmployerProfile({
+    enabled: role === 'employer',
+  });
 
   const photoUrl =
     role === 'worker'

@@ -109,7 +109,7 @@ export default function EmployerJobDetailPage() {
             <Button
               variant="ghost"
               onClick={() => router.back()}
-              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-transparent gap-2 mb-3 rounded-full -ml-2"
+              className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-transparent gap-2 mb-3 rounded-full -ml-6"
             >
               <ArrowLeft className="w-4 h-4" /> Kembali
             </Button>
@@ -213,7 +213,7 @@ export default function EmployerJobDetailPage() {
                           asChild
                         >
                           <a
-                            href={`${process.env.NEXT_PUBLIC_API_URL}/${app.cv.file_url}`}
+                            href={app.cv.file_url}
                             target="_blank"
                             rel="noreferrer"
                           >

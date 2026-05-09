@@ -6,11 +6,13 @@ export async function getJobApplicants(id?: string) {
 }
 
 export async function updateApplicationStatus(
-  id: string,
+  jobId: string,
+  applicationId: string,
   status: 'accepted' | 'rejected'
 ) {
-  const { data } = await api.patch(`/employer/jobs/${id}/applications`, {
-    status,
-  });
+  const { data } = await api.patch(
+    `/employer/jobs/${jobId}/applications/${applicationId}/status`,
+    { status }
+  );
   return data;
 }
